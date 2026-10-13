@@ -350,3 +350,12 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--cyan);bo
 .done-portal a{color:var(--pink)}
 @media (max-width:1440px) and (min-width:1021px){ .links a{padding:8px 7px;font-size:.82rem} .nav-admin span{display:none} }
 @media (max-width:1180px) and (min-width:1021px){ .links a{padding:8px 5px;font-size:.78rem} .brand span{font-size:.7rem} }
+
+/* Recuadro "Mi ingreso" (sección Ingreso) */
+.mi-box{margin-top:34px;display:flex;align-items:center;gap:20px;padding:22px 24px;border-radius:20px;background:rgba(255,255,255,.07);border:1px solid rgba(78,214,255,.35)}
+.mi-ic{flex:0 0 auto;width:56px;height:56px;border-radius:16px;display:grid;place-items:center;font-size:1.7rem;background:rgba(78,214,255,.15)}
+.mi-txt{flex:1;min-width:0}
+.mi-txt h3{margin:0 0 6px;font-size:1.15rem;color:#fff}
+.mi-txt p{margin:0;color:rgba(255,255,255,.82);line-height:1.5}
+.mi-box .btn{flex:0 0 auto}
+@media (max-width:760px){.mi-box{flex-direction:column;align-items:flex-start}.mi-box .btn{width:100%}}

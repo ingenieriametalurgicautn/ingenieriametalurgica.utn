@@ -5,6 +5,9 @@
   const $$ = (s, el) => Array.from((el || document).querySelectorAll(s));
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const CFG = window.IM_CONFIG;
+  /* Los emails se redactan siempre en el Gmail de Metalúrgica (no en Outlook ni en el programa predeterminado) */
+  const gmail = (to, asunto, cuerpo) => 'https://mail.google.com/mail/?authuser=' + encodeURIComponent(CFG.ADMIN_EMAIL) +
+    '&view=cm&fs=1&to=' + encodeURIComponent(to || '') + (asunto ? '&su=' + encodeURIComponent(asunto) : '') + (cuerpo ? '&body=' + encodeURIComponent(cuerpo) : '');
   const store = {
     get() { try { const s = JSON.parse(sessionStorage.getItem('im_ses')); return s && s.exp > Date.now() ? s : null; } catch (e) { return null; } },
     set(v) { try { v ? sessionStorage.setItem('im_ses', JSON.stringify(v)) : sessionStorage.removeItem('im_ses'); } catch (e) {} }
@@ -199,7 +202,7 @@
       const p = progreso(r), w = wa(r['Teléfono']), pe = r._pend;
       return `<tr data-id="${esc(r.ID)}">
         <td><div class="p-name">${esc(nombre(r))}</div><div class="p-sub">${r['DNI'] ? 'DNI ' + esc(r['DNI']) + ' · ' : ''}${esc(r['Localidad'] || '')}</div><span class="tipo">${esc(r['Tipo'])}</span>${r._msg ? `<span class="chip-msg">💬 ${r._msg}</span>` : ''}</td>
-        <td>${w ? `<a class="ic" href="https://wa.me/${w}" target="_blank" rel="noopener" title="WhatsApp">💬</a>` : ''}${r['Email'] && !/•/.test(r['Email']) ? `<a class="ic" href="mailto:${esc(r['Email'])}" title="Email">✉</a>` : ''}<div class="p-sub">${esc(r['Teléfono'] || '')}</div></td>
+        <td>${w ? `<a class="ic" href="https://wa.me/${w}" target="_blank" rel="noopener" title="WhatsApp">💬</a>` : ''}${r['Email'] && !/•/.test(r['Email']) ? `<a class="ic" href="${esc(gmail(r['Email'], 'Ingeniería Metalúrgica UTN FRC'))}" target="_blank" rel="noopener" title="Email (Gmail de Metalúrgica)">✉</a>` : ''}<div class="p-sub">${esc(r['Teléfono'] || '')}</div></td>
         <td><span class="badge b-${esc(r['Estado'])}">${esc(r['Estado'])}</span></td>
         <td>${esc(r['Situación'] || '')}${r['Estado'] === 'Baja' && r['Motivo de baja'] ? `<div class="p-sub">${esc(r['Motivo de baja'])}</div>` : ''}</td>
         <td><div class="mini"><div class="bt"><div style="width:${p / 6 * 100}%;--c:${p === 6 ? 'var(--c-est)' : 'var(--c-ing)'}"></div></div><span>${p}/6</span></div>${docChip(r._doc)}</td>
@@ -316,7 +319,7 @@
     const w = wa(r['Teléfono']);
     $('#dQuick').innerHTML = (w ? `<a class="q-wa" href="https://wa.me/${w}?text=${encodeURIComponent('¡Hola ' + (r['Nombres'] || '') + '! Te escribimos de Ingeniería Metalúrgica UTN FRC 👋')}" target="_blank" rel="noopener">💬 WhatsApp</a>` : '') +
       (telLimpio(r['Teléfono']) && !/•/.test(r['Teléfono']) ? `<a class="q-tel" href="tel:${telLimpio(r['Teléfono'])}">☎ Llamar</a>` : '') +
-      (r['Email'] && !/•/.test(r['Email']) ? `<a class="q-mail" href="mailto:${esc(r['Email'])}?subject=${encodeURIComponent('Ingeniería Metalúrgica UTN FRC')}">✉ Email</a>` : '');
+      (r['Email'] && !/•/.test(r['Email']) ? `<a class="q-mail" href="${esc(gmail(r['Email'], 'Ingeniería Metalúrgica UTN FRC'))}" target="_blank" rel="noopener">✉ Email</a>` : '');
     renderPipe(); renderEtapas();
     $('#dSit').innerHTML = Array.from(new Set(SITUACIONES.concat(V('Situación') ? [V('Situación')] : []))).map(s => `<option ${s === V('Situación') ? 'selected' : ''}>${esc(s)}</option>`).join('');
     $('#dSit').disabled = !can('editor');
