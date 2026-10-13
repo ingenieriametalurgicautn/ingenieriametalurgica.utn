@@ -1,4 +1,4 @@
-/* Panel de aspirantes · Ingeniería Metalúrgica UTN FRC · v2 */
+/* Panel de aspirantes · Ingeniería Metalúrgica UTN FRC · v3 */
 :root{
   --navy:#001484; --navy-3:#000D5C; --pink:#FF2566; --amber:#F5AB12; --cyan:#4ED6FF; --violet:#9D8BFF; --green:#12B76A;
   --c-cons:#0091B5; --c-ing:#C27E00; --c-est:#0E9E5C; --c-baja:#6B7394;
@@ -82,7 +82,7 @@ h2{font-weight:900;text-transform:uppercase;color:var(--navy);font-size:.95rem;l
 .none{color:var(--muted);font-weight:600;font-size:.9rem}
 
 /* Listado */
-.filters{display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:10px;align-items:center;margin-bottom:10px}
+.filters{display:grid;grid-template-columns:2fr 1fr 1fr 1.2fr auto auto;gap:10px;align-items:center;margin-bottom:10px}
 .tog{display:flex;gap:8px;align-items:center;text-transform:none;font-size:.85rem;color:var(--navy);white-space:nowrap;letter-spacing:0;margin:0}
 .tog input{width:18px;height:18px;margin:0;accent-color:var(--pink);flex:none}
 .table-wrap{overflow-x:auto}
@@ -182,6 +182,51 @@ h2{font-weight:900;text-transform:uppercase;color:var(--navy);font-size:.95rem;l
 
 .toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%) translateY(120px);background:var(--ink);color:#fff;padding:12px 18px;border-radius:12px;font-weight:700;z-index:90;transition:transform .3s;max-width:92vw;text-align:center}
 .toast.on{transform:translateX(-50%) translateY(0)}
+
+
+/* v3 · documentación, mensajes y difusión */
+.inbox i{font-style:normal;background:rgba(255,255,255,.2);border-radius:99px;padding:0 7px;font-size:.75rem}
+.inbox.hot i{background:var(--pink)}
+.bulk{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;background:var(--light);border-radius:14px;padding:8px 8px 8px 14px;margin-bottom:10px}
+.bulk span{font-weight:800;font-size:.84rem;color:var(--navy)}
+.chip-msg{display:inline-block;margin-left:6px;background:var(--pink);color:#fff;border-radius:99px;padding:1px 7px;font-size:.68rem;font-weight:800}
+.dchip{display:inline-block;margin-top:5px;border-radius:8px;padding:2px 7px;font-size:.68rem;font-weight:800;white-space:nowrap}
+.d-falta{background:#FFE3EA;color:var(--red)}.d-rev{background:#FFF3D6;color:#7A4E00}.d-ok{background:#DDF6E8;color:#0B6B3D}.d-obs{background:var(--red);color:#fff}
+.dv{border:2px solid var(--line);border-radius:12px;padding:10px;margin-top:8px}
+.dv.d-ok,.dv.d-falta,.dv.d-rev,.dv.d-obs{background:#fff;color:inherit}
+.dv.d-rev{border-color:#FFD48A}.dv.d-ok{border-color:#BDEBD1}.dv.d-obs{border-color:#F5B8C8}
+.dv-h{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
+.dv-h b{color:var(--navy);font-size:.9rem}.dv-h small{display:block;color:var(--muted);font-weight:600;font-size:.74rem}
+.dv-h .dchip{margin-top:0}
+.dv .opt{font-size:.62rem;font-weight:800;text-transform:uppercase;color:var(--muted);background:var(--light);border-radius:6px;padding:1px 6px}
+.dv-obs{margin-top:6px;font-size:.8rem;font-weight:700;color:var(--red)}
+.dv-a{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.dv-a .btn{padding:7px 10px;font-size:.78rem}
+.dv-f{margin-top:8px}
+.btn-ok{background:var(--c-est);color:#fff}
+.btn-wa{background:#1DA851;color:#fff}
+.btn-wa.done{background:var(--light);color:var(--muted)}
+.thread{display:flex;flex-direction:column;gap:6px;max-height:300px;overflow:auto;background:var(--light);border-radius:12px;padding:10px;margin-bottom:8px}
+.bub{max-width:85%;border-radius:14px;padding:7px 10px}
+.bub p{white-space:pre-wrap;font-weight:600;font-size:.86rem}
+.bub small{display:block;font-size:.64rem;font-weight:700;opacity:.75;margin-top:2px}
+.bub.me{align-self:flex-end;background:var(--navy);color:#fff;border-bottom-right-radius:4px}
+.bub.them{align-self:flex-start;background:#fff;border:2px solid var(--line);border-bottom-left-radius:4px}
+.msend{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:6px;flex-wrap:wrap}
+.msend .tog{margin:0}
+.mbox.wide{max-width:640px;max-height:92vh;overflow:auto}
+.dests summary{cursor:pointer;font-weight:800;font-size:.82rem;color:var(--navy);margin-top:6px}
+.dests p{font-size:.8rem;max-height:90px;overflow:auto}
+.vars{font-size:.76rem!important}
+.vars button{border:0;background:var(--light);color:var(--navy);font-weight:800;border-radius:6px;padding:2px 6px;font-size:.74rem}
+.chans{display:grid;gap:6px;margin-top:10px;background:var(--light);border-radius:12px;padding:10px 12px}
+.chans .tog{margin:0}.chans small{color:var(--muted);font-weight:700}
+.prev{margin-top:10px;border:2px dashed var(--line);border-radius:12px;padding:10px 12px}
+.prev b{font-size:.74rem;text-transform:uppercase;color:var(--muted);letter-spacing:.04em}
+.prev p{white-space:pre-wrap;color:var(--ink)!important;font-size:.86rem}
+.walist{display:grid;gap:6px;margin-top:10px;max-height:46vh;overflow:auto}
+.wa{display:flex;align-items:center;justify-content:space-between;gap:8px;border:2px solid var(--line);border-radius:10px;padding:6px 6px 6px 10px;font-weight:700;font-size:.86rem}
+.ro .ed{display:none!important}
 
 @media (max-width:1100px){ .stages{grid-template-columns:repeat(3,1fr)} .filters{grid-template-columns:1fr 1fr} .ufm{grid-template-columns:1fr 1fr} .stg .arrow{display:none} }
 @media (max-width:700px){

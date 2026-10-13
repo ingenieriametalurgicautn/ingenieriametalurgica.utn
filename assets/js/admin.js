@@ -1,4 +1,4 @@
-/* Panel de aspirantes · Ingeniería Metalúrgica UTN FRC · v2 */
+/* Panel de aspirantes · Ingeniería Metalúrgica UTN FRC · v3 */
 (function () {
   'use strict';
   const $ = (s, el) => (el || document).querySelector(s);
@@ -77,12 +77,14 @@
   let FILAS = [], LOG = [], MOTIVOS = [], CIERRE = CFG.CIERRE;
   let filtroEstado = '', orden = { k: 'Fecha', dir: -1 };
   let actual = null, draft = {}, accion = 'WhatsApp', FICHA = null;
+  let REQS = [], CUOTA = null, HILO = null;
+  const PORTAL = location.origin + location.pathname.replace(/[^/]*$/, '') + 'mi-ingreso.html';
 
   function toast(m, ms) { const t = $('#toast'); t.textContent = m; t.classList.add('on'); clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('on'), ms || 2800); }
   const can = rol => USER && ({ lector: 1, editor: 2, admin: 3 }[USER.rol] >= { lector: 1, editor: 2, admin: 3 }[rol]);
 
-  async function call(params) {
-    const d = await imApi(Object.assign({}, params, { token: SES && SES.token }));
+  async function call(params, timeout) {
+    const d = await imApi(Object.assign({}, params, { token: SES && SES.token }), timeout);
     if (d && d.auth === false) { logout(d.error); throw new Error(d.error); }
     if (!d || !d.ok) throw new Error((d && d.error) || 'Error');
     if (SES) { SES.exp = Date.now() + (SES.min || 120) * 60000; store.set(SES); }
@@ -133,6 +135,9 @@
   }
   function apply(d) {
     FILAS = d.filas || []; LOG = d.log || []; MOTIVOS = d.motivos || MOTIVOS; if (d.cierre) CIERRE = d.cierre;
+    REQS = d.requisitos || REQS; if (d.cuota != null) CUOTA = d.cuota;
+    const nIn = FILAS.reduce((a, r) => a + (r._msg || 0), 0);
+    $('#inboxN').textContent = nIn; $('#bInbox').classList.toggle('hot', nIn > 0);
     FILAS.forEach(r => { const p = pendiente(r); r._pend = p; r._venc = p && !p.soft ? '0' + p.orden : (p ? '1' + p.orden : '9'); });
     renderStages(); renderAgenda(); renderTable();
     if (actual) { const r = FILAS.find(x => x.ID === actual); if (r) fillDrawer(r, true); else closeDrawer(true); }
@@ -174,7 +179,11 @@
   /* ---------- Listado ---------- */
   function filtradas() {
     const q = $('#q').value.trim().toLowerCase(), tipo = $('#fTipo').value, sit = $('#fSit').value, pend = $('#fPend').checked;
+    const fd = $('#fDoc').value, fm = $('#fMsg').checked;
+    const docOk = r => { const x = r._doc || {}; if (!fd) return true; if (r['Estado'] === 'Baja') return false;
+      if (fd === 'falta') return (x.falta || []).length > 0; if (fd === 'obs') return x.obs > 0; if (fd === 'rev') return x.rev > 0; return x.oblig > 0 && x.apr === x.oblig; };
     return FILAS.filter(r => (!filtroEstado || r['Estado'] === filtroEstado) && (!tipo || r['Tipo'] === tipo) && (!sit || r['Situación'] === sit) && (!pend || r._pend) &&
+      docOk(r) && (!fm || r._msg > 0) &&
       (!q || ['Apellidos', 'Nombres', 'DNI', 'Email', 'Teléfono', 'Colegio', 'Localidad', 'ID', 'Legajo'].some(k => String(r[k] || '').toLowerCase().includes(q))))
       .sort((a, b) => String(a[orden.k] || '').localeCompare(String(b[orden.k] || ''), 'es', { numeric: true }) * orden.dir);
   }
@@ -184,20 +193,29 @@
     sel.innerHTML = '<option value="">Todas las situaciones</option>' + sits.map(s => `<option ${s === cur ? 'selected' : ''}>${esc(s)}</option>`).join('');
     const rows = filtradas();
     $('#empty').hidden = rows.length > 0;
+    $('#difN').textContent = rows.length; $('#bDif').disabled = !rows.length;
+    $('#bulkTxt').textContent = rows.length === FILAS.length ? `${rows.length} aspirantes` : `${rows.length} de ${FILAS.length} aspirantes con estos filtros`;
     $('#tbody').innerHTML = rows.map(r => {
       const p = progreso(r), w = wa(r['Teléfono']), pe = r._pend;
       return `<tr data-id="${esc(r.ID)}">
-        <td><div class="p-name">${esc(nombre(r))}</div><div class="p-sub">${r['DNI'] ? 'DNI ' + esc(r['DNI']) + ' · ' : ''}${esc(r['Localidad'] || '')}</div><span class="tipo">${esc(r['Tipo'])}</span></td>
+        <td><div class="p-name">${esc(nombre(r))}</div><div class="p-sub">${r['DNI'] ? 'DNI ' + esc(r['DNI']) + ' · ' : ''}${esc(r['Localidad'] || '')}</div><span class="tipo">${esc(r['Tipo'])}</span>${r._msg ? `<span class="chip-msg">💬 ${r._msg}</span>` : ''}</td>
         <td>${w ? `<a class="ic" href="https://wa.me/${w}" target="_blank" rel="noopener" title="WhatsApp">💬</a>` : ''}${r['Email'] && !/•/.test(r['Email']) ? `<a class="ic" href="mailto:${esc(r['Email'])}" title="Email">✉</a>` : ''}<div class="p-sub">${esc(r['Teléfono'] || '')}</div></td>
         <td><span class="badge b-${esc(r['Estado'])}">${esc(r['Estado'])}</span></td>
         <td>${esc(r['Situación'] || '')}${r['Estado'] === 'Baja' && r['Motivo de baja'] ? `<div class="p-sub">${esc(r['Motivo de baja'])}</div>` : ''}</td>
-        <td><div class="mini"><div class="bt"><div style="width:${p / 6 * 100}%;--c:${p === 6 ? 'var(--c-est)' : 'var(--c-ing)'}"></div></div><span>${p}/6</span></div></td>
+        <td><div class="mini"><div class="bt"><div style="width:${p / 6 * 100}%;--c:${p === 6 ? 'var(--c-est)' : 'var(--c-ing)'}"></div></div><span>${p}/6</span></div>${docChip(r._doc)}</td>
         <td class="${pe ? (pe.soft ? 'ok-t' : pe.cls === 'today' ? 'today-t' : 'late-t') : 'ok-t'}">${pe ? (pe.soft ? '' : '⚠ ') + esc(pe.why) : d10(r['Próximo contacto']) ? 'Próximo: ' + fmt(r['Próximo contacto']) : '—'}</td>
         <td>${fmt(r['Fecha'])}</td></tr>`;
     }).join('');
     $$('#tbody tr').forEach(tr => tr.addEventListener('click', e => { if (!e.target.closest('a')) openDrawer(tr.dataset.id); }));
   }
-  ['#q', '#fTipo', '#fSit', '#fPend'].forEach(s => $(s).addEventListener('input', renderTable));
+  function docChip(x) {
+    if (!x || !x.oblig) return '';
+    const cls = x.obs ? 'obs' : x.apr === x.oblig ? 'ok' : x.rev ? 'rev' : 'falta';
+    const t = x.obs ? `${x.obs} observado${x.obs > 1 ? 's' : ''}` : x.apr === x.oblig ? 'Docs ✓' : x.rev ? `${x.rev} para revisar` : `Docs ${x.ent}/${x.oblig}`;
+    return `<span class="dchip d-${cls}">📄 ${t}</span>`;
+  }
+  ['#q', '#fTipo', '#fSit', '#fPend', '#fDoc', '#fMsg'].forEach(s => $(s).addEventListener('input', renderTable));
+  $('#bInbox').onclick = () => { filtroEstado = ''; $('#fMsg').checked = true; renderStages(); renderTable(); $('.list').scrollIntoView({ behavior: 'smooth' }); };
   $$('th[data-sort]').forEach(th => th.onclick = () => { const k = th.dataset.sort; orden = { k, dir: orden.k === k ? -orden.dir : 1 }; renderTable(); });
 
   /* ---------- Exportar (solo admin, queda auditado) ---------- */
@@ -225,7 +243,55 @@
     $('#dDatosBox').open = false; $('#dData').innerHTML = ''; $('#dDatosMsg').textContent = can('editor') ? 'Se cargan al abrir esta sección (queda registrado).' : 'Tu rol no permite ver datos personales.';
     $('#scrim').hidden = false; $('#drawer').classList.add('on'); $('#drawer').setAttribute('aria-hidden', 'false');
     $('#dBody').scrollTop = 0;
+    HILO = null; $('#dDocBox').hidden = $('#dMsgBox').hidden = !can('editor');
+    $('#dMsgBox').open = r._msg > 0; $('#dDocBox').open = !!(r._doc && r._doc.rev);
+    $('#stbDoc').innerHTML = '<p class="hint">Cargando…</p>'; $('#mThread').innerHTML = '<p class="hint">Cargando…</p>';
+    $('#stDoc').textContent = r._doc && r._doc.oblig ? `${r._doc.apr}/${r._doc.oblig} aprobados` : ''; $('#stMsg').textContent = r._msg ? r._msg + ' sin leer' : '';
+    if (can('editor')) loadHilo(id);
   }
+
+  /* ---------- Documentación y mensajes de la ficha ---------- */
+  async function loadHilo(id) {
+    try { const d = await call({ action: 'hilo', id }); if (actual !== id) return; HILO = d; renderHilo(); const r = base(); if (r._msg) { r._msg = 0; apply({ filas: FILAS, log: LOG }); } }
+    catch (e) { $('#stbDoc').innerHTML = `<p class="hint">No se pudo cargar: ${esc(e.message)}</p>`; }
+  }
+  const DOC_EST = { '': ['Falta entregar', 'falta'], 'Entregado': ['Para revisar', 'rev'], 'Aprobado': ['Aprobado', 'ok'], 'Observado': ['Observado', 'obs'] };
+  function renderHilo() {
+    if (!HILO) return;
+    const docs = HILO.docs || [], ob = docs.filter(x => x.oblig);
+    $('#stDoc').textContent = ob.length ? `${ob.filter(x => x.estado === 'Aprobado').length}/${ob.length} aprobados` : '';
+    $('#stDoc').classList.toggle('done', ob.length > 0 && ob.every(x => x.estado === 'Aprobado'));
+    $('#stbDoc').innerHTML = docs.map((x, i) => {
+      const [t, c] = DOC_EST[x.estado] || DOC_EST[''], url = x.archivo || x.link;
+      return `<div class="dv d-${c}"><div class="dv-h"><div><b>${esc(x.doc)}</b>${x.oblig ? '' : ' <span class="opt">opcional</span>'}<small>${x.estado ? 'Entregado ' + fmt(x.fecha) + (x.link ? ' · link' : x.nombre ? ' · ' + esc(x.nombre) : '') : 'Todavía no lo entregó'}</small></div><span class="dchip d-${c}">${t}</span></div>
+        ${x.obs ? `<p class="dv-obs">⚠ ${esc(x.obs)}</p>` : ''}
+        ${url ? `<div class="dv-a"><a class="btn btn-ghost-dark" href="${esc(url)}" target="_blank" rel="noopener">Abrir ${x.archivo ? 'archivo' : 'link'} ↗</a>${x.estado !== 'Aprobado' ? `<button class="btn btn-ok" data-ap="${i}">✓ Aprobar</button>` : ''}<button class="btn btn-ghost-dark" data-ob="${i}">Observar…</button></div>
+        <div class="dv-f" id="obf${i}" hidden><textarea rows="2" placeholder="¿Qué tiene que corregir? Ej.: la foto del DNI está borrosa"></textarea><div class="msend"><label class="tog"><input type="checkbox" checked> Avisarle por email</label><button class="btn btn-navy" data-obok="${i}">Enviar observación</button></div></div>` : ''}</div>`;
+    }).join('') + '<p class="hint">Los archivos se guardan en la carpeta "Documentación aspirantes" de Drive. Cuando todos los obligatorios están aprobados se marca sola la etapa "Documentación entregada".</p>';
+    $$('#stbDoc [data-ap]').forEach(b => b.onclick = () => revisar(docs[b.dataset.ap].doc, 'Aprobado'));
+    $$('#stbDoc [data-ob]').forEach(b => b.onclick = () => { const f = $('#obf' + b.dataset.ob); f.hidden = !f.hidden; if (!f.hidden) $('textarea', f).focus(); });
+    $$('#stbDoc [data-obok]').forEach(b => b.onclick = () => { const f = $('#obf' + b.dataset.obok); revisar(docs[b.dataset.obok].doc, 'Observado', $('textarea', f).value.trim(), $('input', f).checked); });
+    const ms = HILO.mensajes || [];
+    $('#stMsg').textContent = ms.length ? ms.length + ' mensaje' + (ms.length > 1 ? 's' : '') : '';
+    $('#mThread').innerHTML = ms.length ? ms.map(m => `<div class="bub ${m.de === 'oficina' ? 'me' : 'them'}"><p>${esc(m.texto)}</p><small>${m.de === 'oficina' ? esc((m.autor || '').split('@')[0]) + (m.canal && m.canal !== 'portal' ? ' · ' + esc(m.canal) : '') : 'Aspirante'} · ${fmt(m.fecha)} ${String(m.fecha).slice(11, 16)}</small></div>`).join('')
+      : '<p class="hint">Sin mensajes todavía. Lo que escribas acá le aparece en <b>Mi ingreso</b>.</p>';
+    const th = $('#mThread'); th.scrollTop = th.scrollHeight;
+  }
+  async function revisar(doc, estado, obs, avisar) {
+    if (estado === 'Observado' && !obs) return toast('Escribí qué tiene que corregir');
+    try {
+      const d = await call({ action: 'docReview', id: actual, doc, estado, obs: obs || '', avisar: !!avisar });
+      HILO = d.hilo; apply(d); renderHilo();
+      toast(estado === 'Aprobado' ? (d.completo ? '✓ Aprobado · ¡documentación completa!' : '✓ Documento aprobado') : '✓ Observación enviada');
+    } catch (e) { toast('No se pudo guardar: ' + e.message, 4000); }
+  }
+  $('#mSend').onclick = async () => {
+    const texto = $('#mTxt').value.trim(); if (!texto) return toast('Escribí un mensaje');
+    $('#mSend').disabled = true;
+    try { const d = await call({ action: 'msgSend', id: actual, texto, avisar: $('#mMail').checked }); HILO = d; renderHilo(); $('#mTxt').value = ''; toast(d.emailEnviado ? '✓ Enviado y avisado por email' : '✓ Mensaje enviado'); }
+    catch (e) { toast('No se pudo enviar: ' + e.message, 4000); }
+    finally { $('#mSend').disabled = false; }
+  };
   function closeDrawer(force) {
     if (!force && Object.keys(draft).length && !confirm('Tenés cambios sin guardar. ¿Cerrar igual?')) return;
     actual = null; draft = {}; FICHA = null;
@@ -386,6 +452,69 @@
       $('#mDel').classList.remove('on'); closeDrawer(true); apply(d); toast('Registro eliminado (copia en Papelera)');
     } catch (e) { $('#delErr').textContent = e.message; }
     finally { $('#delOk').disabled = false; }
+  };
+
+  /* ---------- Difusión: mensaje a todos los filtrados ---------- */
+  const fechaCierre = () => { const [y, m, d] = CIERRE.split('-'); return `${+d}/${+m}`; };
+  const PLANTILLAS = () => [
+    { k: 'falta', t: 'Falta documentación', as: 'Te falta entregar documentación · Ingeniería Metalúrgica',
+      tx: `¡Hola {nombre}! 👋 Te escribimos del Departamento de Ingeniería Metalúrgica (UTN FRC).\nPara completar tu ingreso todavía nos falta: {documentos}.\nLo podés subir en 2 minutos desde Mi ingreso (entrás con tu email): ${PORTAL}\nCualquier duda, respondé este mensaje.` },
+    { k: 'obs', t: 'Documento observado', as: 'Tenés un documento para corregir · Ingeniería Metalúrgica',
+      tx: `¡Hola {nombre}! Revisamos tu documentación y hay algo para corregir. Entrá a Mi ingreso, en la pestaña Documentación vas a ver qué falta: ${PORTAL}` },
+    { k: 'cierre', t: 'Recordatorio de cierre', as: 'Las inscripciones cierran pronto · Ingeniería Metalúrgica',
+      tx: `¡Hola {nombre}! Te recordamos que las inscripciones cierran el ${fechaCierre()}. Para completar tu ingreso te falta: {pasos}.\nSeguí tu proceso en Mi ingreso: ${PORTAL}` },
+    { k: 'portal', t: 'Invitación a Mi ingreso', as: 'Seguí tu ingreso online · Ingeniería Metalúrgica',
+      tx: `¡Hola {nombre}! Ya podés seguir tu ingreso a Ingeniería Metalúrgica online: ver tus pasos y notas, subir la documentación y escribirnos.\nEntrá con tu email acá: ${PORTAL}` },
+    { k: 'libre', t: 'Mensaje libre', as: 'Ingeniería Metalúrgica UTN FRC', tx: '¡Hola {nombre}! ' }
+  ];
+  let DIF = [];
+  function prevTxt() {
+    const r = DIF[0]; if (!r) return '';
+    const fal = (r._doc && r._doc.falta || []).join(', ') || 'nada, ¡ya está todo!';
+    const pas = faltantes(r).join(', ') || 'nada, ¡ya completaste todo!';
+    return $('#difTxt').value.replace(/\{nombre\}/g, String(r['Nombres'] || '').split(' ')[0]).replace(/\{documentos\}/g, fal).replace(/\{pasos\}/g, pas);
+  }
+  function updPrev() { $('#prevTxt').textContent = prevTxt(); }
+  $('#bDif').onclick = () => {
+    DIF = filtradas(); if (!DIF.length) return;
+    const tp = PLANTILLAS();
+    $('#difTit').textContent = DIF.length === 1 ? '1 aspirante' : DIF.length + ' aspirantes';
+    $('#difDest').textContent = 'Ver destinatarios (' + DIF.length + ')';
+    $('#difList').textContent = DIF.map(nombre).join(' · ');
+    $('#difTpl').innerHTML = tp.map(x => `<option value="${x.k}">${esc(x.t)}</option>`).join('');
+    const def = $('#fDoc').value === 'obs' ? 'obs' : $('#fDoc').value === 'falta' ? 'falta' : 'libre';
+    $('#difTpl').value = def; usarTpl();
+    const cupo = CUOTA == null ? null : Math.max(0, CUOTA - 15);
+    $('#cuotaTxt').textContent = cupo == null ? '' : `· hoy podés enviar ${cupo}${cupo < DIF.length ? ' (el resto, mañana)' : ''}`;
+    $('#prevN').textContent = nombre(DIF[0]);
+    $('#difErr').textContent = ''; $('#difForm').hidden = false; $('#difRes').hidden = true;
+    $('#mDif').classList.add('on');
+  };
+  function usarTpl() { const x = PLANTILLAS().find(t => t.k === $('#difTpl').value); $('#difAs').value = x.as; $('#difTxt').value = x.tx; updPrev(); }
+  $('#difTpl').onchange = usarTpl;
+  $('#difTxt').oninput = updPrev;
+  $$('.vars button').forEach(b => b.onclick = e => { e.preventDefault(); const t = $('#difTxt'), i = t.selectionStart || t.value.length; t.value = t.value.slice(0, i) + b.dataset.v + t.value.slice(t.selectionEnd || i); t.focus(); updPrev(); });
+  $('#difNo').onclick = () => $('#mDif').classList.remove('on');
+  $('#difFin').onclick = () => $('#mDif').classList.remove('on');
+  $('#difOk').onclick = async () => {
+    const canales = { portal: $('#cPortal').checked, email: $('#cEmail').checked, wa: $('#cWa').checked };
+    if (!canales.portal && !canales.email && !canales.wa) return $('#difErr').textContent = 'Elegí al menos un canal.';
+    if (!$('#difTxt').value.trim()) return $('#difErr').textContent = 'Escribí el mensaje.';
+    if (!confirm(`Vas a enviar este mensaje a ${DIF.length} aspirante${DIF.length > 1 ? 's' : ''}. ¿Confirmás?`)) return;
+    $('#difOk').disabled = true; $('#difErr').textContent = 'Enviando…';
+    try {
+      const d = await call({ action: 'difundir', ids: DIF.map(r => r.ID), asunto: $('#difAs').value.trim(), texto: $('#difTxt').value.trim(), canales }, 300000);
+      if (d.lista) apply(d.lista);
+      const partes = [];
+      if (canales.portal) partes.push(`✓ ${d.portal} mensajes en Mi ingreso`);
+      if (canales.email) partes.push(`✓ ${d.email} emails enviados` + (d.sinCuota ? ` · ⚠ ${d.sinCuota} quedaron sin enviar por el límite diario de Gmail (repetilo mañana)` : '') + (d.sinEmail ? ` · ${d.sinEmail} sin email` : ''));
+      if (canales.wa) partes.push(`WhatsApp: tocá "Enviar" en cada persona (${d.wa.length})`);
+      $('#difResTxt').innerHTML = partes.map(esc).join('<br>');
+      $('#waList').innerHTML = (d.wa || []).map((w, i) => `<div class="wa"><span>${esc(w.nombre)}</span><a class="btn btn-wa" href="${esc(w.link)}" target="_blank" rel="noopener" data-i="${i}">Enviar ▸</a></div>`).join('');
+      $$('#waList a').forEach(a => a.addEventListener('click', () => { a.textContent = '✓ Abierto'; a.classList.add('done'); }));
+      $('#difForm').hidden = true; $('#difRes').hidden = false; $('#difErr').textContent = '';
+    } catch (e) { $('#difErr').textContent = e.message; }
+    finally { $('#difOk').disabled = false; }
   };
 
   /* ---------- Usuarios ---------- */

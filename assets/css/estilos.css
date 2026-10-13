@@ -344,3 +344,9 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--cyan);bo
 @media (max-width:640px){ .shorts{gap:8px} .yt-short button{width:44px;height:44px} }
 .links a{white-space:nowrap;padding:8px 10px;font-size:.88rem}
 @media (max-width:1240px) and (min-width:1021px){ .links a{padding:8px 7px;font-size:.82rem} .nav-admin span{display:none} }
+/* v3 · Mi ingreso */
+.links a.nav-mi{color:var(--cyan);font-weight:800}
+.done-portal{background:var(--light);border-radius:12px;padding:10px 12px;margin-top:12px!important}
+.done-portal a{color:var(--pink)}
+@media (max-width:1440px) and (min-width:1021px){ .links a{padding:8px 7px;font-size:.82rem} .nav-admin span{display:none} }
+@media (max-width:1180px) and (min-width:1021px){ .links a{padding:8px 5px;font-size:.78rem} .brand span{font-size:.7rem} }

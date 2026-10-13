@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src https://script.google.com https://script.googleusercontent.com; base-uri 'self'; form-action 'none'">
+<title>Mi ingreso · Ingeniería Metalúrgica UTN FRC</title>
+<meta name="theme-color" content="#001484">
+<link rel="icon" href="assets/img/logo-redondo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/portal.css">
+</head>
+<body>
+
+<!-- ============ INGRESO ============ -->
+<section class="login" id="login">
+  <div class="lcard">
+    <img src="assets/img/logo.jpg" alt="Ingeniería Metalúrgica UTN" class="llogo">
+    <h1>Mi ingreso</h1>
+
+    <div id="step1">
+      <p>Seguí tus pasos, mirá tus notas, entregá la documentación y escribinos.</p>
+      <label for="dato">Email con el que te preinscribiste</label>
+      <input id="dato" type="email" inputmode="email" autocomplete="email" placeholder="tuemail@gmail.com">
+      <small class="alt">También podés escribir tu CUIL o DNI.</small>
+      <button class="btn btn-pink" id="bCod">Enviarme un código</button>
+    </div>
+
+    <div id="step2" hidden>
+      <p id="codMsg"></p>
+      <label for="codigo">Código de 6 números</label>
+      <input id="codigo" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="••••••" class="code">
+      <button class="btn btn-pink" id="bEnt">Entrar</button>
+      <div class="links"><button class="lnk" id="bRe">Reenviar código</button><button class="lnk" id="bCam">Cambiar email</button></div>
+    </div>
+
+    <p class="err" id="lErr" role="alert"></p>
+    <ul class="sec">
+      <li>🔒 Sin contraseñas: cada vez te mandamos un código nuevo.</li>
+      <li>¿Todavía no te preinscribiste? <a href="index.html#preinscripcion">Hacelo acá</a>.</li>
+    </ul>
+    <a href="index.html" class="back">◂ Volver a la web</a>
+  </div>
+</section>
+
+<!-- ============ PORTAL ============ -->
+<div id="app" hidden>
+  <header class="top">
+    <div class="top-in">
+      <img src="assets/img/logo-redondo.png" alt="">
+      <div class="hi"><span>Mi ingreso</span><b id="hiName"></b></div>
+      <button class="out" id="bOut">Salir</button>
+    </div>
+    <nav class="tabs" role="tablist">
+      <button class="tab on" data-t="camino">🧭 Mi camino</button>
+      <button class="tab" data-t="docs">📄 <span class="lg">Documentación</span><span class="sm">Docs</span> <i id="tDocs"></i></button>
+      <button class="tab" data-t="msg">💬 Mensajes <i id="tMsg"></i></button>
+    </nav>
+  </header>
+
+  <main class="main">
+    <!-- MI CAMINO -->
+    <section id="v-camino">
+      <div class="hero-card">
+        <div><span class="badge" id="estado"></span><h2 id="frase"></h2><p id="sub"></p></div>
+        <div class="ring" id="ring"><b id="pct">0%</b><small>completado</small></div>
+      </div>
+      <div class="card">
+        <h3>Tus pasos</h3>
+        <ol class="steps" id="steps"></ol>
+      </div>
+      <div class="card">
+        <h3>Cursillo de ingreso · notas</h3>
+        <div class="notas" id="notas"></div>
+        <p class="hint" id="notasHint"></p>
+      </div>
+    </section>
+
+    <!-- DOCUMENTACIÓN -->
+    <section id="v-docs" hidden>
+      <div class="card intro">
+        <h3>Tu documentación</h3>
+        <p>Subí cada documento como <b>PDF o foto</b> (hasta <span id="maxMb">10</span> MB), o pegá un <b>link de Google Drive</b>. Te avisamos si hay que corregir algo.</p>
+      </div>
+      <div id="docList" class="docs"></div>
+    </section>
+
+    <!-- MENSAJES -->
+    <section id="v-msg" hidden>
+      <div class="card chat">
+        <h3>Mensajes con el Departamento</h3>
+        <div class="thread" id="thread"></div>
+        <div class="send">
+          <textarea id="txt" rows="2" maxlength="1500" placeholder="Escribí tu consulta…"></textarea>
+          <button class="btn btn-pink" id="bSend">Enviar</button>
+        </div>
+        <p class="hint">Te respondemos por acá y te avisamos por email.</p>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- Link de Drive -->
+<div class="modal" id="mLink"><div class="mbox">
+  <h3>Pegar link</h3>
+  <p id="mLinkDoc"></p>
+  <input id="linkTxt" placeholder="https://drive.google.com/…" inputmode="url">
+  <p class="tip">En Drive: tocá ⋮ → <b>Compartir</b> → <b>Acceso general: Cualquier persona con el enlace</b> → Copiar enlace.</p>
+  <p class="err" id="linkErr"></p>
+  <div class="macts"><button class="btn btn-ghost" id="linkNo">Cancelar</button><button class="btn btn-pink" id="linkOk">Guardar link</button></div>
+</div></div>
+
+<input type="file" id="file" accept="application/pdf,image/*" hidden>
+<div class="toast" id="toast"></div>
+
+<script src="assets/js/config.js"></script>
+<script src="assets/js/portal.js"></script>
+</body>
+</html>
