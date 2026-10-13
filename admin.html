@@ -4,6 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://accounts.google.com/gsi/client; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://accounts.google.com/gsi/style; font-src https://fonts.gstatic.com; img-src 'self' data: https://*.googleusercontent.com; frame-src https://accounts.google.com/gsi/; connect-src https://script.google.com https://script.googleusercontent.com https://accounts.google.com/gsi/; base-uri 'self'; form-action 'none'">
 <title>Panel de aspirantes · Ingeniería Metalúrgica UTN FRC</title>
 <meta name="theme-color" content="#001484">
 <link rel="icon" href="assets/img/logo-redondo.png">
@@ -14,18 +16,21 @@
 </head>
 <body>
 
-<!-- ============ LOGIN ============ -->
+<!-- ============ INGRESO ============ -->
 <section id="login" class="login">
-  <form class="login-card" id="loginForm">
+  <div class="login-card">
     <img src="assets/img/logo.jpg" alt="Ingeniería Metalúrgica UTN">
     <h1>Panel de aspirantes</h1>
-    <p>Ingresá con el email del Departamento y la clave de administración.</p>
-    <label>Email<input id="lEmail" type="email" autocomplete="username" required placeholder="ingenieriametalurgicafrc@gmail.com"></label>
-    <label>Clave<input id="lClave" type="password" autocomplete="current-password" required></label>
+    <p>Ingresá con tu cuenta de Google. Solo pueden entrar las cuentas autorizadas por la administración del Departamento.</p>
+    <div id="gbtn" class="gbtn"></div>
     <p class="lerr" id="lErr" role="alert"></p>
-    <button class="btn btn-pink" id="lBtn" type="submit">Ingresar</button>
+    <ul class="sec-list">
+      <li>🔒 No se guardan contraseñas: usás la seguridad de tu cuenta de Google.</li>
+      <li>⏱ La sesión se cierra sola después de un rato sin uso.</li>
+      <li>📝 Cada acceso a datos personales queda registrado.</li>
+    </ul>
     <a href="index.html" class="back">◂ Volver a la web</a>
-  </form>
+  </div>
 </section>
 
 <!-- ============ PANEL ============ -->
@@ -34,49 +39,45 @@
     <div class="top-in">
       <img src="assets/img/logo-redondo.png" alt="">
       <div class="ttl">Panel de aspirantes<span>Ingeniería Metalúrgica · UTN FRC</span></div>
+      <nav class="tabs" id="tabs" role="tablist">
+        <button class="tab on" data-tab="seg" role="tab">Seguimiento</button>
+        <button class="tab adm" data-tab="usr" role="tab">Usuarios</button>
+        <button class="tab adm" data-tab="aud" role="tab">Auditoría</button>
+      </nav>
       <div class="sp"></div>
-      <span class="sync" id="sync">Actualizado</span>
-      <button class="btn btn-ghost" id="bRefresh">↻ Actualizar</button>
-      <button class="btn btn-ghost" id="bCsv">⬇ Exportar</button>
+      <span class="who" id="who"></span>
+      <button class="btn btn-ghost" id="bRefresh" title="Actualizar">↻</button>
+      <button class="btn btn-ghost adm" id="bCsv">⬇ Exportar</button>
       <button class="btn btn-ghost" id="bOut">Salir</button>
     </div>
   </header>
 
-  <main class="main">
-    <!-- KPIs -->
-    <section class="kpis" id="kpis"></section>
+  <!-- SEGUIMIENTO -->
+  <main class="main" id="tab-seg">
+    <section class="stages" id="stages"></section>
 
-    <section class="row3">
-      <div class="panel">
-        <h2>Embudo de ingreso</h2>
-        <div id="funnel"></div>
+    <section class="today">
+      <div class="today-head">
+        <h2>Para hoy</h2>
+        <details class="rule"><summary>¿Cuándo un seguimiento está vencido?</summary>
+          <p id="ruleTxt"></p>
+        </details>
       </div>
-      <div class="panel">
-        <h2>¿Cómo nos conocieron?</h2>
-        <div id="origen"></div>
-      </div>
-      <div class="panel">
-        <h2>Seguimientos pendientes</h2>
-        <div id="agenda" class="agenda"></div>
-      </div>
+      <div id="agenda" class="agenda"></div>
     </section>
 
-    <!-- Listado -->
     <section class="panel list">
-      <div class="list-head">
-        <div class="chips" id="chips"></div>
-        <div class="filters">
-          <input id="q" type="search" placeholder="Buscar por nombre, DNI, email, colegio…">
-          <select id="fTipo"><option value="">Todos los tipos</option><option>Preinscripción</option><option>Consulta</option></select>
-          <select id="fSit"><option value="">Todas las situaciones</option></select>
-          <label class="tog"><input type="checkbox" id="fPend"> Solo con seguimiento vencido</label>
-        </div>
+      <div class="filters">
+        <input id="q" type="search" placeholder="Buscar por nombre, DNI, email, colegio, localidad…">
+        <select id="fTipo"><option value="">Preinscripciones y consultas</option><option>Preinscripción</option><option>Consulta</option></select>
+        <select id="fSit"><option value="">Todas las situaciones</option></select>
+        <label class="tog"><input type="checkbox" id="fPend"> Solo pendientes</label>
       </div>
       <div class="table-wrap">
         <table class="tbl">
           <thead><tr>
-            <th data-sort="Apellidos">Persona</th><th>Contacto</th><th data-sort="Estado">Estado</th><th data-sort="Situación">Situación</th>
-            <th>Requisitos</th><th data-sort="Próximo contacto">Próximo contacto</th><th data-sort="Fecha">Ingresó</th>
+            <th data-sort="Apellidos">Persona</th><th>Contacto</th><th data-sort="Estado">Condición</th><th data-sort="Situación">Situación</th>
+            <th>Avance</th><th data-sort="_venc">Seguimiento</th><th data-sort="Fecha">Ingresó</th>
           </tr></thead>
           <tbody id="tbody"></tbody>
         </table>
@@ -84,9 +85,43 @@
       </div>
     </section>
   </main>
+
+  <!-- USUARIOS -->
+  <main class="main" id="tab-usr" hidden>
+    <section class="panel">
+      <h2>Habilitar acceso</h2>
+      <p class="hint">La persona entra con su cuenta de Google (Gmail o cuenta institucional de Google). Podés quitarle el acceso cuando quieras: se desconecta en el momento.</p>
+      <div class="ufm">
+        <label>Email<input id="uEmail" type="email" placeholder="nombre@gmail.com"></label>
+        <label>Nombre<input id="uNombre" placeholder="Nombre y apellido"></label>
+        <label>Rol
+          <select id="uRol">
+            <option value="editor">Editor/a — ve y hace seguimiento</option>
+            <option value="lector">Lector/a — solo consulta, sin datos personales</option>
+            <option value="admin">Administrador/a — todo, incluso usuarios y borrar</option>
+          </select>
+        </label>
+        <button class="btn btn-pink" id="uSave">Habilitar</button>
+      </div>
+      <p class="uerr" id="uErr"></p>
+    </section>
+    <section class="panel">
+      <h2>Personas con acceso</h2>
+      <div class="table-wrap"><table class="tbl"><thead><tr><th>Persona</th><th>Rol</th><th>Estado</th><th>Último acceso</th><th></th></tr></thead><tbody id="uBody"></tbody></table></div>
+    </section>
+  </main>
+
+  <!-- AUDITORÍA -->
+  <main class="main" id="tab-aud" hidden>
+    <section class="panel">
+      <h2>Registro de actividad</h2>
+      <p class="hint">Últimos 300 movimientos: ingresos, accesos a datos personales, ediciones, bajas, exportaciones y eliminaciones.</p>
+      <div class="table-wrap"><table class="tbl"><thead><tr><th>Fecha</th><th>Usuario</th><th>Acción</th><th>Registro</th><th>Detalle</th></tr></thead><tbody id="aBody"></tbody></table></div>
+    </section>
+  </main>
 </div>
 
-<!-- ============ FICHA (panel lateral) ============ -->
+<!-- ============ FICHA ============ -->
 <div class="scrim" id="scrim" hidden></div>
 <aside class="drawer" id="drawer" aria-hidden="true">
   <div class="d-head">
@@ -98,47 +133,73 @@
     <button class="x" id="dClose" aria-label="Cerrar">✕</button>
   </div>
   <div class="d-quick" id="dQuick"></div>
-  <div class="d-body">
-    <section class="d-sec">
-      <h3>Condición</h3>
+  <div class="d-body" id="dBody">
+    <section class="d-cond">
       <div class="pipe" id="dPipe"></div>
       <p class="pipe-hint" id="dPipeHint"></p>
       <label>Situación<select id="dSit"></select></label>
+      <div class="baja-info" id="dBajaInfo" hidden></div>
     </section>
 
-    <section class="d-sec">
-      <h3>Requisitos <span class="req-count" id="dReqCount"></span></h3>
-      <div class="req-bar"><div id="dReqBar"></div></div>
-      <div id="dReqs"></div>
-      <div class="grid3">
-        <label>Legajo SysAcad<input id="dLegajo" inputmode="numeric"></label>
-        <label>Próximo contacto<input id="dProx" type="date"></label>
+    <details class="stage" data-st="1"><summary><span class="st-n">1</span>Contacto<em id="st1"></em></summary><div class="st-b" id="stb1"></div></details>
+    <details class="stage" data-st="2"><summary><span class="st-n">2</span>Ingreso (cursillo)<em id="st2"></em></summary><div class="st-b" id="stb2"></div></details>
+    <details class="stage" data-st="3"><summary><span class="st-n">3</span>Para ser estudiante<em id="st3"></em></summary><div class="st-b" id="stb3"></div></details>
+
+    <details class="stage" data-st="seg" open><summary><span class="st-n">✎</span>Seguimiento<em id="stLog"></em></summary>
+      <div class="st-b">
+        <div class="acts" id="dActs"></div>
+        <textarea id="lDet" rows="2" placeholder="¿Qué pasó? Ej.: le escribí por WhatsApp, quedó en venir al pre-cursillo."></textarea>
+        <div class="grid2">
+          <label>Próximo contacto<input id="lProx" type="date"></label>
+          <div class="end"><button class="btn btn-navy" id="lSave">Registrar</button></div>
+        </div>
+        <ol class="timeline" id="dLog"></ol>
       </div>
-      <label>Observaciones<textarea id="dObs" rows="3"></textarea></label>
-      <div class="d-save"><span id="dDirty"></span><button class="btn btn-pink" id="dSave">Guardar cambios</button></div>
-    </section>
-
-    <section class="d-sec">
-      <h3>Registrar seguimiento</h3>
-      <div class="acts" id="dActs"></div>
-      <textarea id="lDet" rows="2" placeholder="¿Qué pasó? Ej.: le escribí por WhatsApp, quedó en venir al pre-cursillo."></textarea>
-      <div class="grid3">
-        <label>Próximo contacto<input id="lProx" type="date"></label>
-        <div class="d-save end"><button class="btn btn-navy" id="lSave">Registrar</button></div>
-      </div>
-      <ol class="timeline" id="dLog"></ol>
-    </section>
-
-    <details class="d-sec d-data">
-      <summary>Datos personales</summary>
-      <div class="grid2" id="dData"></div>
-      <div class="d-save"><button class="btn btn-ghost-dark" id="dSaveData">Guardar datos</button></div>
     </details>
+
+    <details class="stage" data-st="obs"><summary><span class="st-n">i</span>Notas y próximos pasos</summary>
+      <div class="st-b">
+        <label>Próximo contacto<input id="dProx" type="date"></label>
+        <label>Observaciones<textarea id="dObs" rows="3"></textarea></label>
+      </div>
+    </details>
+
+    <details class="stage" data-st="datos" id="dDatosBox"><summary><span class="st-n">👤</span>Datos personales</summary>
+      <div class="st-b"><p class="hint" id="dDatosMsg">Se cargan al abrir esta sección (queda registrado).</p><div class="grid2" id="dData"></div></div>
+    </details>
+
+    <div class="d-danger">
+      <button class="btn btn-ghost-dark" id="dBaja">Dar de baja…</button>
+      <button class="btn btn-danger adm" id="dDel">Eliminar registro</button>
+    </div>
   </div>
+  <div class="d-foot"><span id="dDirty"></span><button class="btn btn-pink" id="dSave">Guardar cambios</button></div>
 </aside>
+
+<!-- Baja -->
+<div class="modal" id="mBaja"><div class="mbox">
+  <h3>Dar de baja</h3>
+  <p id="mBajaName"></p>
+  <label>Motivo<select id="bMot"></select></label>
+  <label>Detalle (opcional)<textarea id="bDet" rows="3" placeholder="Ej.: consiguió trabajo en horario nocturno"></textarea></label>
+  <label class="tog"><input type="checkbox" id="bMail"> Enviarle un email para que nos cuente el motivo con 1 clic</label>
+  <p class="merr" id="bErr"></p>
+  <div class="macts"><button class="btn btn-ghost-dark" id="bNo">Cancelar</button><button class="btn btn-pink" id="bOk">Confirmar baja</button></div>
+</div></div>
+
+<!-- Eliminar -->
+<div class="modal" id="mDel"><div class="mbox">
+  <h3>Eliminar registro</h3>
+  <p>Se quita de la lista y de su historial de seguimiento. Queda una copia en la hoja <b>Papelera</b> por seguridad.</p>
+  <p class="big" id="mDelName"></p>
+  <label>Escribí <b>ELIMINAR</b> para confirmar<input id="delTxt" autocomplete="off"></label>
+  <p class="merr" id="delErr"></p>
+  <div class="macts"><button class="btn btn-ghost-dark" id="delNo">Cancelar</button><button class="btn btn-danger" id="delOk">Eliminar</button></div>
+</div></div>
 
 <div class="toast" id="toast"></div>
 
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 <script src="assets/js/config.js"></script>
 <script src="assets/js/admin.js"></script>
 </body>

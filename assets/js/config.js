@@ -3,7 +3,10 @@
 window.IM_CONFIG = {
   API: 'https://script.google.com/macros/s/AKfycbwC7i7bjUPyQvuUvZbRqFPWAFP_0PT_ivq_mzjg3cP8B-BR6lirQw3xjQv5hH4p9Rml/exec',
   CIERRE: '2026-11-29',            // Cierre de inscripciones (respaldo si la planilla no responde)
-  ADMIN_EMAIL: 'ingenieriametalurgicafrc@gmail.com'
+  ADMIN_EMAIL: 'ingenieriametalurgicafrc@gmail.com',
+  GOOGLE_CLIENT_ID: '',            // ← ID de cliente OAuth (el mismo que en el script). Es público: no es una clave.
+  DIAS_NUEVO_SIN_CONTACTO: 2,      // Un registro nuevo pasa a "vencido" si nadie lo contactó en estos días
+  DIAS_SIN_SEGUIMIENTO: 7          // Un aspirante en proceso pasa a "vencido" si pasaron estos días sin contacto
 };
 
 /* Llamadas a la planilla: lecturas por GET; todo lo demás por POST (cuerpo JSON en texto plano). */

@@ -117,21 +117,34 @@
   };
   const LABS = [
     { t: 'Impresión 3D', p: 'Fabricación aditiva para crear prototipos y piezas con geometrías imposibles por métodos tradicionales.', c: 'var(--amber)', i: 'printer' },
-    { t: 'Tratamientos térmicos', p: 'Calentar y enfriar con precisión para cambiar la estructura interna de un metal: más duro, más tenaz, más resistente.', c: 'var(--pink)', i: 'flame', dark: true },
-    { t: 'Microscopía y análisis metalográfico', p: 'Mirar el material por dentro: granos, fases y defectos que explican por qué una pieza resiste o falla.', c: 'var(--cyan)', i: 'micro' },
+    { t: 'Tratamientos térmicos y fundición', p: 'Fundir, moldear, calentar y enfriar con precisión para cambiar la estructura interna de un metal: más duro, más tenaz, más resistente.', c: 'var(--pink)', i: 'flame', dark: true, img: 'assets/img/fundicion.jpg' },
+    { t: 'Microscopía y análisis metalográfico', p: 'Mirar el material por dentro: granos, fases y defectos que explican por qué una pieza resiste o falla.', c: 'var(--cyan)', i: 'micro', img: 'assets/img/microscopio.jpg' },
     { t: 'Sistemas de control', p: 'Instrumentación y automatización para medir y controlar procesos industriales.', c: 'var(--violet)', i: 'control' },
-    { t: 'Ensayos mecánicos', p: 'Tracción, dureza, impacto: poner a prueba los materiales para saber cuánto aguantan antes de usarlos.', c: 'var(--amber)', i: 'test' }
+    { t: 'Ensayos mecánicos', p: 'Tracción, dureza, impacto: poner a prueba los materiales para saber cuánto aguantan antes de usarlos.', c: 'var(--amber)', i: 'test', img: 'assets/img/taller.jpg' }
   ];
   function showLab(i) {
     const l = LABS[i], v = $('#labView');
     $$('.lab').forEach((b, k) => { b.classList.toggle('on', k === i); b.setAttribute('aria-selected', k === i); });
     v.style.setProperty('--lc', l.c); v.classList.toggle('dark', !!l.dark);
-    $('#labIcon').innerHTML = ICON[l.i];
+    $('#labIcon').innerHTML = l.img ? `<img class="lab-photo" src="${l.img}" alt="">` : ICON[l.i];
+    v.classList.toggle('has-photo', !!l.img);
     $('#labT').textContent = l.t; $('#labP').textContent = l.p;
     const cap = $('#labCap'); cap.classList.remove('lab-anim'); void cap.offsetWidth; cap.classList.add('lab-anim');
   }
   $$('.lab').forEach(b => b.addEventListener('click', () => showLab(+b.dataset.i)));
   showLab(0);
+
+  /* ---------- Videos (se cargan recién al tocar play: más rápido y sin cookies) ---------- */
+  $$('.yt').forEach(el => {
+    const id = el.dataset.id, short = el.classList.contains('yt-short');
+    if (!/^[\w-]{11}$/.test(id)) return;
+    el.style.backgroundImage = `url(https://i.ytimg.com/vi/${id}/${short ? 'oar2' : 'hqdefault'}.jpg)`;
+    if (short) { const im = new Image(); im.onerror = () => { el.style.backgroundImage = `url(https://i.ytimg.com/vi/${id}/hqdefault.jpg)`; }; im.src = `https://i.ytimg.com/vi/${id}/oar2.jpg`; }
+    el.innerHTML = `<button aria-label="Reproducir: ${esc(el.dataset.title)}">▶</button><span>${esc(el.dataset.title)}</span>`;
+    el.addEventListener('click', () => {
+      el.innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0&playsinline=1" title="${esc(el.dataset.title)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>`;
+    }, { once: true });
+  });
 
   // Acordeón de salida laboral: uno abierto a la vez
   $$('#accSalida details').forEach(d => d.addEventListener('toggle', () => {
@@ -143,7 +156,7 @@
   let mode = 'pre', step = 1;
   const STEP_FIELDS = {
     1: ['nombres', 'apellidos', 'email', 'telefono'],
-    2: ['dni', 'cuil', 'nacimiento', 'estadoCivil', 'nacionalidad', 'pais'],
+    2: ['cuil', 'nacimiento', 'estadoCivil', 'nacionalidad', 'pais'],
     3: ['direccion', 'barrio', 'localidad', 'provincia', 'cp', 'colegio', 'acepto']
   };
   function setMode(m) {
@@ -170,15 +183,26 @@
     if (!v) return 'Completá los campos marcados con *.';
     if (n === 'email' && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)) return 'Revisá el email.';
     if (n === 'telefono' && v.replace(/\D/g, '').length < 8) return 'Revisá el teléfono (con característica).';
-    if (n === 'dni' && !/^\d{7,8}$/.test(v.replace(/\D/g, ''))) return 'El DNI debe tener 7 u 8 números.';
     if (n === 'cuil') {
-      const c = v.replace(/\D/g, ''), d = val('dni').replace(/\D/g, '');
-      if (c.length !== 11) return 'El CUIL debe tener 11 números.';
-      if (d && c.slice(2, 10).replace(/^0+/, '') !== d.replace(/^0+/, '')) return 'El CUIL no coincide con el DNI.';
+      const c = v.replace(/\D/g, '');
+      if (c.length !== 11) return 'El CUIL debe tener 11 números (por ejemplo 20-12345678-3).';
+      if (!cuilValido(c)) return 'Ese CUIL no es válido: revisá los números.';
     }
     if (n === 'nacimiento') { const y = +v.slice(0, 4), now = new Date().getFullYear(); if (y < now - 80 || y > now - 14) return 'Revisá la fecha de nacimiento.'; }
     return '';
   }
+  function cuilValido(c) {
+    if (!/^(20|23|24|27|30|33|34)\d{9}$/.test(c)) return false;
+    const w = [5, 4, 3, 2, 7, 6, 5, 4, 3, 2];
+    let s = 0; for (let i = 0; i < 10; i++) s += +c[i] * w[i];
+    let dv = 11 - (s % 11); if (dv === 11) dv = 0; if (dv === 10) dv = 9;
+    return dv === +c[10];
+  }
+  // Formatea el CUIL mientras se escribe: 20-12345678-3
+  form.elements.cuil.addEventListener('input', e => {
+    const d = e.target.value.replace(/\D/g, '').slice(0, 11);
+    e.target.value = d.length > 10 ? `${d.slice(0, 2)}-${d.slice(2, 10)}-${d.slice(10)}` : d.length > 2 ? `${d.slice(0, 2)}-${d.slice(2)}` : d;
+  });
   function validate(names) {
     let first = '';
     names.forEach(n => {
@@ -209,8 +233,7 @@
     ['nombres', 'apellidos', 'email', 'telefono', 'origen'].forEach(n => datos[n] = val(n));
     if (mode === 'consulta') datos.consulta = val('consulta');
     else {
-      ['dni', 'cuil', 'nacimiento', 'estadoCivil', 'nacionalidad', 'pais', 'direccion', 'barrio', 'localidad', 'provincia', 'cp', 'colegio', 'tecnico', 'egreso'].forEach(n => datos[n] = val(n));
-      datos.dni = datos.dni.replace(/\D/g, '');
+      ['cuil', 'nacimiento', 'estadoCivil', 'nacionalidad', 'pais', 'direccion', 'barrio', 'localidad', 'provincia', 'cp', 'colegio', 'tecnico', 'egreso'].forEach(n => datos[n] = val(n));
       datos.consulta = val('consultaPre');
     }
     try {

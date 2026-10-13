@@ -1,0 +1,606 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Desafío de Postas (grupos) · Ingeniería Metalúrgica UTN FRC</title>
+<meta name="theme-color" content="#001484">
+<link rel="icon" href="assets/img/logo-redondo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#001484; --navy-2:#0A22A0; --navy-3:#000D5C;
+  --pink:#FF2566; --amber:#F5AB12; --cyan:#4ED6FF; --violet:#9D8BFF; --green:#12B76A;
+  --white:#fff; --ink:#0B1446; --muted:#5A6394; --track:#ECEFFC;
+  --r:20px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:Montserrat,system-ui,-apple-system,"Segoe UI",sans-serif;
+  background:var(--navy);color:var(--white);min-height:100vh;line-height:1.45;-webkit-font-smoothing:antialiased;
+  background-image:
+    radial-gradient(circle at 12% 8%, rgba(78,214,255,.18) 0 180px, transparent 181px),
+    radial-gradient(circle at 92% 30%, rgba(255,37,102,.16) 0 220px, transparent 221px),
+    radial-gradient(circle at 10% 75%, rgba(245,171,18,.14) 0 200px, transparent 201px);
+  background-attachment:fixed;
+}
+button,textarea,input{font-family:inherit}
+button{cursor:pointer}
+.stripe{display:flex;height:10px}.stripe span{flex:1}
+.stripe span:nth-child(1){background:var(--pink)}.stripe span:nth-child(2){background:var(--amber)}.stripe span:nth-child(3){background:var(--cyan)}
+.wrap{max-width:920px;margin:0 auto;padding:0 16px}
+
+/* HERO */
+.hero{text-align:center;padding:32px 16px 20px}
+.logo{width:116px;height:116px;border-radius:20px;display:block;margin:0 auto 18px;box-shadow:0 14px 40px rgba(0,0,0,.35)}
+.hero h1{font-weight:900;font-size:clamp(2rem,7vw,3.4rem);line-height:1.02;text-transform:uppercase;letter-spacing:-.02em}
+.hero h1 span{color:var(--amber)}
+.hero p{margin:12px auto 0;max-width:620px;font-weight:600;color:#DDE3FF;font-size:clamp(1rem,3.3vw,1.18rem)}
+
+/* TABLERO DE PROGRESO */
+.board{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);border-radius:var(--r);padding:16px;margin:8px 0 24px}
+.board h2{font-weight:900;font-size:.85rem;letter-spacing:.1em;text-transform:uppercase;color:var(--cyan);margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.net{width:10px;height:10px;border-radius:50%;background:#7CF29A;box-shadow:0 0 0 3px rgba(124,242,154,.25);flex:none}
+.net.off{background:var(--pink);box-shadow:0 0 0 3px rgba(255,37,102,.3)}
+.grid-prog{display:grid;gap:6px;font-weight:800;font-size:.85rem}
+.grid-prog .h{color:#AEB8F0;text-align:center;font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;align-self:end}
+.grid-prog .g{display:flex;align-items:center;gap:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gdot{width:14px;height:14px;border-radius:4px;flex:none;background:var(--gc)}
+.cell{height:36px;border-radius:9px;background:rgba(255,255,255,.1);display:grid;place-items:center;font-size:1.05rem}
+.cell.ok{background:var(--gc);color:var(--navy)}
+.cell.ok::before{content:"✓";font-weight:900}
+
+/* POSTAS */
+.postas{display:grid;gap:24px;padding-bottom:30px}
+.card{background:#fff;color:var(--ink);border-radius:var(--r);overflow:hidden;box-shadow:0 18px 40px rgba(0,0,0,.28);scroll-margin-top:20px}
+.card-top{height:10px;background:var(--acc)}
+.card-body{padding:20px 18px 22px}
+.card-head{display:flex;align-items:center;gap:14px}
+.num{width:56px;height:56px;border-radius:14px;background:var(--acc);color:var(--acc-ink);display:grid;place-items:center;font-weight:900;font-size:1.6rem;flex:none}
+.kicker{font-weight:800;font-size:.74rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.card h3{font-weight:900;font-size:clamp(1.25rem,4.6vw,1.7rem);line-height:1.15;color:var(--navy)}
+.vinc{margin-top:14px;display:flex;flex-wrap:wrap;gap:6px}
+.vinc span{font-size:.74rem;font-weight:800;padding:5px 10px;border-radius:99px;background:var(--track);color:var(--navy)}
+.dilema{margin-top:16px;background:var(--navy);color:#fff;border-radius:16px;padding:16px 18px;position:relative}
+.dilema b{display:block;color:var(--amber);font-weight:900;text-transform:uppercase;font-size:.8rem;letter-spacing:.1em;margin-bottom:6px}
+.dilema p{font-size:1.02rem;font-weight:600}
+details.guia{margin-top:12px;border:2px solid var(--track);border-radius:14px}
+details.guia summary{list-style:none;cursor:pointer;padding:12px 14px;font-weight:800;font-size:.9rem;color:var(--navy);display:flex;justify-content:space-between;align-items:center}
+details.guia summary::-webkit-details-marker{display:none}
+details.guia summary::after{content:"+";width:26px;height:26px;border-radius:8px;background:var(--cyan);display:grid;place-items:center;font-weight:900;transition:transform .2s}
+details.guia[open] summary::after{transform:rotate(45deg)}
+details.guia ol{padding:0 16px 14px 34px;display:grid;gap:8px;font-weight:600;font-size:.96rem}
+.consigna{margin-top:20px;font-weight:900;font-size:1.12rem;color:var(--navy);line-height:1.3}
+.consigna small{display:block;font-size:.74rem;letter-spacing:.1em;text-transform:uppercase;color:var(--pink);margin-bottom:4px}
+.ops{display:grid;gap:10px;margin-top:14px}
+.op{display:flex;gap:12px;align-items:flex-start;text-align:left;width:100%;background:#fff;border:3px solid var(--c);border-radius:14px;padding:12px 14px;font-size:.98rem;font-weight:600;color:var(--ink);transition:background .15s,transform .1s}
+.op .l{flex:none;width:32px;height:32px;border-radius:9px;background:var(--c);color:#fff;display:grid;place-items:center;font-weight:900}
+.op:hover{background:color-mix(in srgb,var(--c) 10%,#fff)}
+.op.sel{background:color-mix(in srgb,var(--c) 22%,#fff);box-shadow:0 0 0 3px color-mix(in srgb,var(--c) 35%,transparent)}
+.op:active{transform:scale(.99)}
+.lbl{margin-top:18px;font-weight:800;font-size:.86rem;color:var(--navy);text-transform:uppercase;letter-spacing:.06em}
+textarea{margin-top:8px;width:100%;min-height:92px;border:3px solid var(--track);border-radius:14px;padding:12px;font-size:1rem;font-weight:500;color:var(--ink);resize:vertical}
+textarea:focus{outline:none;border-color:var(--cyan)}
+.gsel{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin-top:8px}
+.gbtn{border:3px solid var(--gc);background:#fff;color:var(--ink);border-radius:12px;padding:12px 8px;font-weight:900;font-size:.98rem;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+.gbtn.sel{background:var(--gc);color:var(--navy)}
+.gbtn:disabled{opacity:.4;cursor:not-allowed;border-style:dashed}
+.gbtn:disabled::after{content:"✓ ya respondió";font-size:.7rem;font-weight:800}
+.send{margin-top:18px;width:100%;border:0;border-radius:14px;padding:16px;font-weight:900;font-size:1.05rem;text-transform:uppercase;letter-spacing:.05em;background:var(--pink);color:#fff}
+.send:disabled{opacity:.45;cursor:default}
+.msg{margin-top:10px;font-weight:700;font-size:.92rem;min-height:1.2em}
+.msg.err{color:#C4003A}.msg.ok{color:var(--green)}
+.alldone{margin-top:18px;background:var(--track);border-radius:14px;padding:14px;font-weight:800;color:var(--navy);text-align:center}
+
+.adminlink{display:block;margin:10px auto 40px;background:transparent;border:2px solid rgba(255,255,255,.3);color:#C9D1FF;border-radius:12px;padding:12px 18px;font-weight:800;font-size:.9rem}
+footer{text-align:center;padding:0 16px 30px;color:#AEB8F0;font-size:.82rem;font-weight:600}
+
+/* ============ MODO INGENIEROS ============ */
+#admin{display:none}
+body.admin #public{display:none}
+body.admin #admin{display:block}
+.atop{position:sticky;top:0;z-index:30;background:rgba(0,13,92,.94);backdrop-filter:blur(8px);border-bottom:1px solid rgba(255,255,255,.12)}
+.atop-in{max-width:1500px;margin:0 auto;padding:12px 20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.atop img{width:46px;height:46px;border-radius:10px}
+.atop .ttl{font-weight:900;text-transform:uppercase;line-height:1.1}
+.atop .ttl span{display:block;color:var(--cyan);font-size:.74rem;letter-spacing:.1em}
+.atop .sp{flex:1}
+.btn{border:0;border-radius:12px;padding:11px 16px;font-weight:900;text-transform:uppercase;letter-spacing:.04em;font-size:.84rem}
+.btn.y{background:var(--amber);color:var(--navy)}.btn.p{background:var(--pink);color:#fff}
+.btn.c{background:var(--cyan);color:var(--navy)}.btn.g{background:rgba(255,255,255,.14);color:#fff}
+.amain{max-width:1500px;margin:0 auto;padding:22px 20px 60px}
+
+.rank{display:grid;gap:14px;margin-bottom:34px}
+.rank h2,.asec h2{font-weight:900;text-transform:uppercase;font-size:clamp(1.3rem,2.4vw,2rem)}
+.rrow{display:grid;grid-template-columns:56px minmax(110px,220px) 1fr 110px;align-items:center;gap:14px}
+.rpos{width:56px;height:56px;border-radius:14px;background:rgba(255,255,255,.12);display:grid;place-items:center;font-weight:900;font-size:1.5rem}
+.rrow.first .rpos{background:var(--amber);color:var(--navy)}
+.rname{font-weight:900;font-size:clamp(1.05rem,1.8vw,1.5rem);display:flex;align-items:center;gap:10px}
+.rbar{height:clamp(40px,5vh,58px);background:rgba(255,255,255,.12);border-radius:14px;overflow:hidden}
+.rbar div{height:100%;width:0;background:var(--gc);border-radius:14px;transition:width .9s cubic-bezier(.2,.8,.2,1)}
+.rpts{font-weight:900;font-size:clamp(1.8rem,3.4vw,3rem);text-align:right;font-variant-numeric:tabular-nums}
+.rpts small{font-size:.35em;font-weight:800;color:#AEB8F0;display:block;line-height:1}
+
+.asec{margin-top:30px}
+.asec-h{display:flex;align-items:center;gap:14px;margin-bottom:14px}
+.asec-h .num{width:50px;height:50px;font-size:1.4rem}
+.asec-h .kicker{color:var(--cyan)}
+.agrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
+.acard{background:#fff;color:var(--ink);border-radius:18px;overflow:hidden;display:flex;flex-direction:column}
+.acard-top{background:var(--gc);color:var(--navy);padding:10px 14px;font-weight:900;text-transform:uppercase;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.acard-top .pt{background:var(--navy);color:#fff;border-radius:10px;padding:4px 10px;font-size:1.1rem}
+.acard-b{padding:14px;flex:1;display:flex;flex-direction:column;gap:10px}
+.aop{display:flex;gap:10px;align-items:flex-start;font-weight:700;font-size:1rem}
+.aop .l{flex:none;width:34px;height:34px;border-radius:9px;background:var(--navy);color:#fff;display:grid;place-items:center;font-weight:900}
+.badge{display:inline-block;font-size:.7rem;font-weight:900;text-transform:uppercase;letter-spacing:.06em;padding:3px 8px;border-radius:99px;margin-left:6px;vertical-align:middle}
+.badge.ok{background:var(--green);color:#fff}.badge.no{background:var(--track);color:var(--muted)}
+.why{background:var(--track);border-radius:12px;padding:10px 12px;font-size:.95rem;font-weight:600;white-space:pre-wrap}
+.why b{display:block;font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:2px}
+.pend{color:var(--muted);font-weight:700;padding:18px 0;text-align:center}
+.scores{display:grid;grid-template-columns:repeat(10,1fr);gap:5px;margin-top:auto}
+.scores button{border:0;border-radius:9px;padding:10px 0;font-weight:900;font-size:.98rem;background:var(--track);color:var(--navy);transition:transform .1s}
+.scores button:hover{background:color-mix(in srgb,var(--gc) 40%,var(--track))}
+.scores button.on{background:var(--navy);color:#fff;transform:scale(1.08)}
+.scores button:disabled{opacity:.5}
+.slbl{font-size:.72rem;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+
+/* MODALES */
+.modal{position:fixed;inset:0;background:rgba(0,8,50,.86);display:none;place-items:center;z-index:100;padding:16px}
+.modal.on{display:grid}
+.mbox{background:#fff;color:var(--ink);border-radius:22px;padding:24px;max-width:460px;width:100%;text-align:center}
+.mbox h3{font-weight:900;color:var(--navy);text-transform:uppercase;font-size:1.25rem}
+.mbox p{margin-top:8px;color:var(--muted);font-weight:600;font-size:.96rem}
+.mbox .big{margin-top:14px;background:var(--track);border-radius:14px;padding:12px;font-weight:800;color:var(--navy);text-align:left}
+.mbox input{margin-top:16px;width:100%;font-weight:800;font-size:1.25rem;text-align:center;padding:12px;border:3px solid var(--track);border-radius:12px;letter-spacing:.2em}
+.mbox input:focus{outline:none;border-color:var(--cyan)}
+.acts{display:flex;gap:10px;margin-top:16px;justify-content:center;flex-wrap:wrap}
+.mbox .btn.g{background:var(--track);color:var(--navy)}
+.mmsg{margin-top:10px;font-weight:800;min-height:1.3em}
+#winner{background:rgba(0,13,92,.97)}
+#winner .wbox{text-align:center;animation:pop .6s cubic-bezier(.2,1.4,.4,1)}
+@keyframes pop{from{transform:scale(.6);opacity:0}}
+#winner .trophy{font-size:clamp(4rem,12vw,8rem);line-height:1}
+#winner .wt{font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:var(--cyan);font-size:clamp(1rem,2.4vw,1.6rem);margin-top:10px}
+#winner .wn{font-weight:900;font-size:clamp(3rem,10vw,7rem);line-height:1;text-transform:uppercase;margin-top:6px}
+#winner .wp{font-weight:900;font-size:clamp(1.4rem,3.4vw,2.4rem);color:var(--amber);margin-top:10px}
+.conf{position:fixed;top:-20px;width:12px;height:18px;border-radius:3px;z-index:101;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
+
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(140px);background:var(--ink);color:#fff;padding:12px 18px;border-radius:12px;font-weight:700;z-index:200;transition:transform .3s;max-width:92vw;text-align:center}
+.toast.on{transform:translateX(-50%) translateY(0)}
+
+@media (max-width:640px){
+  .rrow{grid-template-columns:44px 1fr 80px;gap:10px}
+  .rrow .rbar{grid-column:1/-1;order:5}
+  .rpos{width:44px;height:44px;font-size:1.2rem}
+  .scores{grid-template-columns:repeat(5,1fr)}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div class="stripe"><span></span><span></span><span></span></div>
+
+<!-- ===================== VISTA PÚBLICA (grupos) ===================== -->
+<div id="public">
+  <header class="hero">
+    <img class="logo" src="assets/img/logo.jpg" alt="Ingeniería Metalúrgica UTN">
+    <h1>Desafío de <span>Postas</span></h1>
+    <p>Resuelvan el desafío de cada posta con el profe. Una sola respuesta por grupo: piénsenla bien antes de enviar.</p>
+  </header>
+  <div class="wrap">
+    <section class="board">
+      <h2><span>Respuestas enviadas</span><span class="net" id="net"></span></h2>
+      <div class="grid-prog" id="prog"></div>
+    </section>
+    <div class="postas" id="postas"></div>
+    <button class="adminlink" id="openAdmin">🔒 Modo ingenieros</button>
+  </div>
+  <footer>UTN · Facultad Regional Córdoba · Ingeniería Metalúrgica</footer>
+</div>
+
+<!-- ===================== MODO INGENIEROS ===================== -->
+<div id="admin">
+  <div class="atop"><div class="atop-in">
+    <img src="assets/img/logo.jpg" alt="">
+    <div class="ttl">Desafío de Postas<span>Respuestas y puntajes</span></div>
+    <div class="sp"></div>
+    <span class="net" id="net2"></span>
+    <button class="btn c" id="bTop">Posiciones</button>
+    <button class="btn y" id="bWinner">🏆 Mostrar ganador</button>
+    <button class="btn g" id="bFull">Pantalla completa</button>
+    <button class="btn p" id="bReset">Borrar todo</button>
+    <button class="btn g" id="bExit">Salir</button>
+  </div></div>
+  <div class="amain">
+    <section class="rank"><h2>Tabla de posiciones</h2><div id="rank"></div></section>
+    <div id="asecs"></div>
+  </div>
+</div>
+
+<!-- Modales -->
+<div class="modal" id="mPin"><div class="mbox">
+  <h3>Modo ingenieros</h3><p>Ingresá la clave para ver las respuestas y puntuar.</p>
+  <input id="pin" type="password" inputmode="numeric" autocomplete="off" placeholder="Clave">
+  <div class="mmsg" id="pinMsg"></div>
+  <div class="acts"><button class="btn g" id="pinCancel">Cancelar</button><button class="btn p" id="pinOk">Entrar</button></div>
+</div></div>
+
+<div class="modal" id="mConfirm"><div class="mbox">
+  <h3>¿Enviar respuesta?</h3><p>Después no se puede cambiar.</p>
+  <div class="big" id="confTxt"></div>
+  <div class="acts"><button class="btn g" id="confNo">Revisar</button><button class="btn p" id="confYes">Enviar</button></div>
+</div></div>
+
+<div class="modal" id="mReset"><div class="mbox">
+  <h3>Borrar todo</h3><p>Se borran todas las respuestas y puntajes (quedan copiados en la hoja “Respaldo”).</p>
+  <div class="mmsg" id="resetMsg"></div>
+  <div class="acts"><button class="btn g" id="resetNo">Cancelar</button><button class="btn p" id="resetYes">Sí, borrar</button></div>
+</div></div>
+
+<div class="modal" id="winner"><div class="wbox">
+  <div class="trophy">🏆</div><div class="wt">Grupo ganador</div><div class="wn" id="wName"></div><div class="wp" id="wPts"></div>
+  <div class="acts" style="margin-top:26px"><button class="btn y" id="wClose">Cerrar</button></div>
+</div></div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================
+   CONFIGURACIÓN
+   ============================================================ */
+const API = 'https://script.google.com/macros/s/AKfycbxaZmeAdIx35idCuxL7Hw8sa4hJ_vC7Sz2xJtsxtZGJZFbxUhPmQIp-zSzqYe2Uuhd9qA/exec';
+
+/* Grupos: cambiá los nombres si quieren (ej. "Los Titanes"). El id no se toca. */
+const GRUPOS = [
+  { id:'g1', nombre:'Grupo 1', color:'var(--pink)'   },
+  { id:'g2', nombre:'Grupo 2', color:'var(--amber)'  },
+  { id:'g3', nombre:'Grupo 3', color:'var(--cyan)'   },
+  { id:'g4', nombre:'Grupo 4', color:'var(--violet)' }
+];
+
+/* Postas. Para quitar una, borrá su bloque { ... }. "k" guarda la respuesta correcta codificada (solo se usa en modo ingenieros). */
+const POSTAS = [
+  { id:'p1', titulo:'El auto liviano que no se rompe',
+    vinc:['Ciencia de Materiales','Procesos de Conformación Plástica'],
+    dilema:'Imaginen que tienen que diseñar el chasis de un auto eléctrico. Las baterías son pesadísimas; si el auto es muy pesado, gasta la batería en 30 minutos. Pero si chocan a 80 km/h, la cabina tiene que proteger a la familia intacta.',
+    guia:['Si hiciéramos todo el chasis de plástico duro para que pese nada... ¿qué pasaría en la primera frenada brusca o choque?',
+          'Si le ponemos hierro grueso como los colectivos antiguos, ¿qué problema técnico aparece con la batería y el consumo?',
+          '¿Todo el auto necesita la misma dureza, o hay zonas que deben arrugarse como acordeón para frenar el golpe y otras que jamás deben doblarse?'],
+    consigna:'Decidan la receta de materiales para fabricar este chasis. ¿Qué combinación eligen y por qué?',
+    ops:['Todo acero pesado tradicional. Es más barato y garantiza que nada se deforme, aunque la batería dure la mitad del viaje.',
+         'Plástico reforzado en toda la estructura. Hace al auto ultra liviano, aunque corra riesgo de quebrarse ante impactos secos.',
+         'Estructura mixta: chapa de aluminio liviana en puertas y capó, combinada con acero de ultra alta resistencia solo en la jaula de pasajeros para salvar vidas.',
+         'Titanio macizo en todo el vehículo. Es resistente y liviano, pero el auto costaría lo mismo que un avión y nadie podría comprarlo.'],
+    k:'cDFD' },
+
+  { id:'p2', titulo:'El escudo que frena el fuego del espacio',
+    vinc:['Refractarios y Cerámicos','Instalaciones Térmicas'],
+    dilema:'Una cápsula espacial vuelve a la Tierra a 28.000 km/h. La fricción contra el aire calienta la panza de la nave a 1.600 °C. Si adentro viajan astronautas o satélites con computadoras, la temperatura interior no puede pasar de 25 °C.',
+    guia:['Si sostenés una cuchara de metal sobre una hornalla, ¿cuánto tarda en quemarte los dedos? ¿Y si sostenés una taza de cerámica con café hirviendo?',
+          '¿Por qué los hornos donde se funde metal no se derriten a sí mismos por fuera?',
+          '¿Qué propiedad física necesitamos acá: resistencia a los golpes o aislamiento térmico extremo?'],
+    consigna:'¿Por qué la nave se recubre con losetas cerámicas y no con una coraza de metal más gruesa?',
+    ops:['Porque el metal, por más grueso que sea, conduce el calor hacia adentro y cocinaría a la tripulación. Las cerámicas atrapan el calor en la superficie sin dejarlo pasar.',
+         'Porque los metales en el espacio se oxidan al instante al tocar el aire.',
+         'Porque la cerámica es maleable como la plastilina y se amolda mejor a las curvas de la nave.',
+         'Es un mito de las películas: en realidad las naves se enfrían con aire acondicionado potente desde adentro.'],
+    k:'cDJB' },
+
+  { id:'p3', titulo:'El misterio del metal que desaparece',
+    vinc:['Degradación, Corrosión y Protección de Materiales'],
+    dilema:'Una baranda de puente frente al mar se llena de óxido rojo, se descascara y en 5 años se quiebra. Al lado, una lata de gaseosa tirada en la arena o un guardarraíl galvanizado siguen intactos.',
+    guia:['¿Qué creen que “come” al metal: el agua, la sal o el oxígeno del aire?',
+          'Si pintamos un metal y la pintura se raya apenas... ¿el óxido se frena o se mete por abajo de la pintura?',
+          '¿Cómo podemos proteger una pieza sin tener que fabricar todo con materiales carísimos como el oro?'],
+    consigna:'Para evitar que un puente o una estructura se destruya con los años, ¿cuál es la mejor estrategia técnica?',
+    ops:['Pintarlo con pintura común al agua todos los meses para tapar el color marrón.',
+         'Aplicar un recubrimiento protector (como zincado o recubrimiento polimérico) que actúe como escudo químico contra el ambiente.',
+         'Fabricar todo con hierro puro sin alear, ya que el hierro virgen nunca reacciona con el agua.',
+         'Dejar que el óxido avance, ya que forma una costra dura que vuelve al metal más fuerte con el tiempo.'],
+    k:'cDNC' },
+
+  { id:'p4', titulo:'Cacería de tesoros en la basura electrónica',
+    vinc:['Reciclado y Economía Circular','Metalurgia Extractiva de No Ferrosos'],
+    dilema:'En Córdoba se desechan miles de computadoras y celulares al año. Adentro de una sola tonelada de plaquetas viejas hay más oro, plata y cobre puro que en varias toneladas de roca de una mina tradicional.',
+    guia:['Si prendemos fuego las plaquetas en un pozo para derretirlas, ¿qué pasa con los plásticos y con el aire que respiramos?',
+          '¿Cómo separarían lo que se pega a un imán de lo que no?',
+          'Si el oro está pegado en pistas microscópicas sobre una placa plástica, ¿se puede raspar con una espátula o hace falta un líquido que lo disuelva químicamente?'],
+    consigna:'Definan la línea de reciclaje para recuperar los metales preciosos sin contaminar el ambiente. ¿Cuál es la secuencia correcta?',
+    ops:['Incinerar toda la chatarra en un horno abierto y juntar las cenizas del fondo.',
+         'Triturar las placas, retirar metales magnéticos con imanes y disolver químicamente los metales valiosos con líquidos específicos (hidrometalurgia) para recuperarlos puros.',
+         'Enterrar las plaquetas en un predio sanitario para que el tiempo descomponga los componentes de forma natural.',
+         'Fundir todo junto (plástico, cables y metales) para fabricar lingotes de un solo material mezclado.'],
+    k:'cDRC' },
+
+  { id:'p5', titulo:'La pieza con trampa: el molde y las burbujas',
+    vinc:['Fundición de Metales Ferrosos y No Ferrosos','Ensayos de Materiales'],
+    dilema:'Dos fábricas funden la misma pieza de aluminio para el pedal de freno de una moto. Una sale perfecta; la otra parece impecable por fuera, pero cuando le hacen una radiografía por dentro está llena de agujeritos de aire (poros) y se parte con una patada.',
+    guia:['Cuando tiran una gaseosa rápido en un vaso, ¿qué pasa con la espuma y el gas?',
+          'Si el metal entra líquido y caliente a un molde cerrado, ¿hacia dónde tiene que escapar el aire que estaba adentro?',
+          '¿Es solo cuestión de calentar y volcar, o hay que diseñar conductos y chimeneas para que el aire salga antes de que el metal se solidifique?'],
+    consigna:'¿Cuál fue el error de ingeniería que provocó que la segunda pieza se llenara de burbujas internas y fuera peligrosa?',
+    ops:['El metal líquido se enfrió demasiado despacio, lo que provocó que el aire se multiplicara solo.',
+         'El diseño del molde no tenía respiraderos ni canales de escape para que los gases salieran cuando entraba el metal.',
+         'Se usó un molde de arena, cuando los metales solo pueden fundirse en moldes de madera.',
+         'El operario no agitó el metal hirviendo con una cuchara mientras se volcaba.'],
+    k:'cDVC' }
+];
+
+/* ============================================================
+   UTILIDADES
+   ============================================================ */
+const LET = 'ABCDEFGHIJ';
+const ACC = [['var(--pink)','#fff'],['var(--amber)','var(--navy)'],['var(--cyan)','var(--navy)'],['var(--violet)','var(--navy)']];
+const OPC = ['var(--pink)','var(--amber)','var(--cyan)','var(--violet)'];
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const ss = { get(k){ try{ return sessionStorage.getItem(k); }catch(e){ return null; } }, set(k,v){ try{ v==null ? sessionStorage.removeItem(k) : sessionStorage.setItem(k,v); }catch(e){} } };
+const grupo = id => GRUPOS.find(g=>g.id===id) || { id, nombre:id, color:'#fff' };
+const correcta = p => { try{ return atob(p.k).slice(-1); }catch(e){ return ''; } };
+
+function toast(msg, ms=2800){ const t=$('#toast'); t.textContent=msg; t.classList.add('on'); clearTimeout(toast._t); toast._t=setTimeout(()=>t.classList.remove('on'), ms); }
+function setNet(ok){ ['#net','#net2'].forEach(s=>$(s).classList.toggle('off', !ok)); }
+function openM(id){ $(id).classList.add('on'); }
+function closeM(id){ $(id).classList.remove('on'); }
+
+/* Lecturas por GET sin parámetros extra; todo lo demás por POST (cuerpo JSON en texto plano). */
+async function api(params, timeoutMs=20000){
+  const isRead = !params || !params.action || params.action === 'status';
+  const u = new URL(API);
+  if(isRead){ u.searchParams.set('action','status'); u.searchParams.set('_', Date.now()); }
+  const ctrl = new AbortController(); const to = setTimeout(()=>ctrl.abort(), timeoutMs);
+  try{
+    const opts = { redirect:'follow', signal:ctrl.signal, cache:'no-store' };
+    if(!isRead){ opts.method='POST'; opts.headers={'Content-Type':'text/plain;charset=utf-8'}; opts.body=JSON.stringify(params); }
+    const r = await fetch(u.toString(), opts);
+    const txt = await r.text();
+    let d; try{ d = JSON.parse(txt); }catch(e){ throw new Error('Respuesta inválida del servidor'); }
+    setNet(true); return d;
+  }catch(e){ setNet(false); throw e; }
+  finally{ clearTimeout(to); }
+}
+
+/* ============================================================
+   VISTA PÚBLICA
+   ============================================================ */
+let DONE = {};                 // { p1:['g1','g3'], ... }
+const draft = {};              // { p1:{op:2, g:'g1', porque:''} }
+
+function renderProg(){
+  const cols = `minmax(90px,1.4fr) repeat(${POSTAS.length}, 1fr)`;
+  let h = `<div class="h"></div>` + POSTAS.map((p,i)=>`<div class="h">Posta ${i+1}</div>`).join('');
+  GRUPOS.forEach(g=>{
+    h += `<div class="g" style="--gc:${g.color}"><span class="gdot"></span>${esc(g.nombre)}</div>`;
+    POSTAS.forEach(p=>{ const ok = (DONE[p.id]||[]).includes(g.id); h += `<div class="cell ${ok?'ok':''}" style="--gc:${g.color}" title="${esc(g.nombre)} · Posta"></div>`; });
+  });
+  const el = $('#prog'); el.style.gridTemplateColumns = cols; el.innerHTML = h;
+}
+
+function renderPostas(){
+  $('#postas').innerHTML = POSTAS.map((p,i)=>{
+    const [acc, ink] = ACC[i%4];
+    return `<article class="card" id="${p.id}" style="--acc:${acc};--acc-ink:${ink}">
+      <div class="card-top"></div><div class="card-body">
+        <div class="card-head"><span class="num">${i+1}</span><div><div class="kicker">Posta ${i+1}</div><h3>${esc(p.titulo)}</h3></div></div>
+        <div class="vinc">${p.vinc.map(v=>`<span>📘 ${esc(v)}</span>`).join('')}</div>
+        <div class="dilema"><b>El dilema</b><p>${esc(p.dilema)}</p></div>
+        <details class="guia"><summary>Preguntas para charlar con el profe</summary><ol>${p.guia.map(q=>`<li>${esc(q)}</li>`).join('')}</ol></details>
+        <div class="consigna"><small>Desafío final</small>${esc(p.consigna)}</div>
+        <div class="ops">${p.ops.map((o,j)=>`<button class="op" data-p="${p.id}" data-o="${j}" style="--c:${OPC[j%4]}"><span class="l">${LET[j]}</span><span>${esc(o)}</span></button>`).join('')}</div>
+        <div class="lbl">¿Por qué eligieron esa opción?</div>
+        <textarea data-p="${p.id}" placeholder="Expliquen con sus palabras..."></textarea>
+        <div class="lbl">¿Qué grupo son?</div>
+        <div class="gsel">${GRUPOS.map(g=>`<button class="gbtn" data-p="${p.id}" data-g="${g.id}" style="--gc:${g.color}">${esc(g.nombre)}</button>`).join('')}</div>
+        <button class="send" data-p="${p.id}" disabled>Enviar respuesta</button>
+        <div class="msg"></div>
+        <div class="alldone" hidden>✓ Todos los grupos ya respondieron esta posta</div>
+      </div></article>`;
+  }).join('');
+}
+
+function refreshCard(pid){
+  const card = $('#'+pid); if(!card) return;
+  const d = draft[pid] || {};
+  const done = DONE[pid] || [];
+  card.querySelectorAll('.op').forEach(b=> b.classList.toggle('sel', +b.dataset.o === d.op));
+  card.querySelectorAll('.gbtn').forEach(b=>{
+    const isDone = done.includes(b.dataset.g);
+    b.disabled = isDone;
+    if(isDone && d.g === b.dataset.g) d.g = undefined;
+    b.classList.toggle('sel', b.dataset.g === d.g);
+  });
+  const all = GRUPOS.every(g=>done.includes(g.id));
+  card.querySelector('.alldone').hidden = !all;
+  card.querySelector('.send').disabled = all || d.op === undefined || !d.g;
+}
+
+function applyStatus(d){
+  if(!d || !d.done) return;
+  DONE = d.done;
+  renderProg();
+  POSTAS.forEach(p=>refreshCard(p.id));
+}
+
+let pendingSend = null;
+function askSend(pid){
+  const p = POSTAS.find(x=>x.id===pid), d = draft[pid] || {};
+  const card = $('#'+pid);
+  d.porque = card.querySelector('textarea').value.trim();
+  if(d.op === undefined || !d.g) return;
+  pendingSend = pid;
+  $('#confTxt').innerHTML = `<div>${esc(grupo(d.g).nombre)} · Posta ${POSTAS.indexOf(p)+1}</div><div style="margin-top:6px">Opción ${LET[d.op]}</div>` + (d.porque ? '' : `<div style="margin-top:6px;color:var(--pink)">⚠ No escribieron el “por qué”.</div>`);
+  openM('#mConfirm');
+}
+
+async function doSend(){
+  const pid = pendingSend; closeM('#mConfirm'); if(!pid) return;
+  const p = POSTAS.find(x=>x.id===pid), d = draft[pid], card = $('#'+pid), msg = card.querySelector('.msg'), btn = card.querySelector('.send');
+  btn.disabled = true; btn.textContent = 'Enviando…'; msg.className='msg'; msg.textContent='';
+  try{
+    const r = await api({ action:'submit', grupo:d.g, posta:pid, opcion:LET[d.op], texto:p.ops[d.op], porque:d.porque || '' });
+    if(r.already){ msg.className='msg err'; msg.textContent = `${grupo(d.g).nombre} ya había respondido esta posta.`; }
+    else if(!r.ok) throw new Error(r.error || 'Error');
+    else{
+      msg.className='msg ok'; msg.textContent = `✓ ¡Respuesta de ${grupo(d.g).nombre} enviada!`;
+      draft[pid] = {}; card.querySelector('textarea').value='';
+      toast(`✓ Respuesta de ${grupo(d.g).nombre} enviada`);
+    }
+    applyStatus(r);
+  }catch(e){
+    msg.className='msg err'; msg.textContent = 'No se pudo enviar. Revisen la conexión y prueben de nuevo.';
+  }finally{ btn.textContent = 'Enviar respuesta'; refreshCard(pid); }
+}
+
+/* ============================================================
+   MODO INGENIEROS
+   ============================================================ */
+let PIN = ss.get('postas_pin');
+let ADM = null;   // { respuestas:[], puntajes:{'p1|g1':8}, totales:{g1:8} }
+
+async function enterAdmin(pin){
+  const d = await api({ action:'admin', pin });
+  if(!d.ok) throw new Error(d.error || 'Error');
+  PIN = pin; ss.set('postas_pin', pin);
+  document.body.classList.add('admin'); window.scrollTo(0,0);
+  ADM = d; renderAdmin(true); applyStatus(d);
+}
+
+function renderRank(){
+  const tot = ADM.totales || {};
+  const max = POSTAS.length * 10;
+  const list = GRUPOS.map(g=>({ g, pts: tot[g.id] || 0 })).sort((a,b)=> b.pts - a.pts);
+  let pos = 0, last = null;
+  $('#rank').innerHTML = list.map((x,i)=>{
+    if(x.pts !== last){ pos = i+1; last = x.pts; }
+    return `<div class="rrow ${pos===1 && x.pts>0?'first':''}" style="--gc:${x.g.color};margin-top:12px">
+      <div class="rpos">${pos}°</div>
+      <div class="rname"><span class="gdot"></span>${esc(x.g.nombre)}</div>
+      <div class="rbar"><div data-w="${Math.round(x.pts/max*100)}"></div></div>
+      <div class="rpts">${x.pts}<small>puntos</small></div></div>`;
+  }).join('');
+  requestAnimationFrame(()=> $('#rank').querySelectorAll('.rbar div').forEach(b=> b.style.width = b.dataset.w + '%'));
+}
+
+function renderAdmin(full){
+  renderRank();
+  const byKey = {}; (ADM.respuestas||[]).forEach(r=> byKey[r.posta+'|'+r.grupo] = r);
+  $('#asecs').innerHTML = POSTAS.map((p,i)=>{
+    const [acc, ink] = ACC[i%4]; const ok = correcta(p);
+    return `<section class="asec"><div class="asec-h"><span class="num" style="--acc:${acc};--acc-ink:${ink}">${i+1}</span>
+      <div><div class="kicker">Posta ${i+1} · Correcta: ${ok}</div><h2>${esc(p.titulo)}</h2></div></div>
+      <div class="agrid">${GRUPOS.map(g=>{
+        const r = byKey[p.id+'|'+g.id]; const pts = (ADM.puntajes||{})[p.id+'|'+g.id];
+        if(!r) return `<div class="acard" style="--gc:${g.color}"><div class="acard-top">${esc(g.nombre)}</div><div class="acard-b"><div class="pend">⏳ Todavía no respondió</div></div></div>`;
+        const j = LET.indexOf(r.opcion);
+        return `<div class="acard" style="--gc:${g.color}">
+          <div class="acard-top">${esc(g.nombre)}${pts?`<span class="pt">${pts}/10</span>`:''}</div>
+          <div class="acard-b">
+            <div class="aop"><span class="l" style="background:${OPC[j%4]||'var(--navy)'}">${esc(r.opcion)}</span>
+              <div>${esc(r.texto || p.ops[j] || '')}${r.opcion===ok?'<span class="badge ok">✓ Correcta</span>':'<span class="badge no">Otra opción</span>'}</div></div>
+            ${r.porque?`<div class="why"><b>Por qué</b>${esc(r.porque)}</div>`:''}
+            <div class="slbl">Puntaje del jurado</div>
+            <div class="scores">${Array.from({length:10},(_,n)=>`<button data-p="${p.id}" data-g="${g.id}" data-n="${n+1}" class="${pts===n+1?'on':''}">${n+1}</button>`).join('')}</div>
+          </div></div>`;
+      }).join('')}</div></section>`;
+  }).join('');
+}
+
+let scoring = false;
+async function score(pid, gid, n, btn){
+  if(scoring) return; scoring = true;
+  const row = btn.parentElement; row.querySelectorAll('button').forEach(b=>{ b.disabled=true; b.classList.toggle('on', b===btn); });
+  try{
+    const d = await api({ action:'score', pin:PIN, grupo:gid, posta:pid, puntaje:n });
+    if(!d.ok) throw new Error(d.error);
+    ADM = d; renderAdmin(); toast(`${grupo(gid).nombre}: ${n} puntos en Posta ${POSTAS.findIndex(p=>p.id===pid)+1}`);
+  }catch(e){ toast('No se pudo guardar el puntaje. Probá de nuevo.'); renderAdmin(); }
+  finally{ scoring = false; }
+}
+
+async function refreshAdmin(){
+  if(!PIN || scoring) return;
+  try{ const d = await api({ action:'admin', pin:PIN }, 15000); if(d.ok && !scoring){ const y = window.scrollY; ADM = d; renderAdmin(); applyStatus(d); window.scrollTo(0,y); } }catch(e){}
+}
+
+function showWinner(){
+  const tot = ADM.totales || {};
+  const list = GRUPOS.map(g=>({ g, pts: tot[g.id]||0 })).sort((a,b)=>b.pts-a.pts);
+  if(!list.length || list[0].pts === 0){ toast('Todavía no hay puntajes cargados.'); return; }
+  const top = list.filter(x=>x.pts===list[0].pts);
+  $('#wName').textContent = top.map(x=>x.g.nombre).join(' y ');
+  $('#winner .wt').textContent = top.length > 1 ? '¡Empate en el primer puesto!' : 'Grupo ganador';
+  $('#wPts').textContent = `${list[0].pts} puntos`;
+  openM('#winner'); confetti();
+}
+function confetti(){
+  const cols = ['#FF2566','#F5AB12','#4ED6FF','#9D8BFF','#fff'];
+  for(let i=0;i<120;i++){
+    const c = document.createElement('div'); c.className='conf';
+    c.style.left = Math.random()*100+'vw'; c.style.background = cols[i%cols.length];
+    c.style.animationDuration = (2.5+Math.random()*2.5)+'s'; c.style.animationDelay = (Math.random()*1.2)+'s';
+    document.body.appendChild(c); setTimeout(()=>c.remove(), 6500);
+  }
+}
+
+/* ============================================================
+   EVENTOS E INICIO
+   ============================================================ */
+renderProg(); renderPostas();
+
+$('#postas').addEventListener('click', e=>{
+  const op = e.target.closest('.op'), gb = e.target.closest('.gbtn'), sd = e.target.closest('.send');
+  if(op){ const pid = op.dataset.p; draft[pid] = draft[pid] || {}; draft[pid].op = +op.dataset.o; refreshCard(pid); }
+  if(gb && !gb.disabled){ const pid = gb.dataset.p; draft[pid] = draft[pid] || {}; draft[pid].g = gb.dataset.g; refreshCard(pid); }
+  if(sd && !sd.disabled) askSend(sd.dataset.p);
+});
+$('#confNo').onclick = ()=> closeM('#mConfirm');
+$('#confYes').onclick = doSend;
+
+async function tryPin(){
+  const v = $('#pin').value.trim(), m = $('#pinMsg');
+  if(!v){ m.style.color='var(--pink)'; m.textContent='Ingresá la clave'; return; }
+  m.style.color='var(--muted)'; m.textContent='Verificando…'; $('#pinOk').disabled = true;
+  try{ await enterAdmin(v); closeM('#mPin'); $('#pin').value=''; m.textContent=''; }
+  catch(e){ m.style.color='var(--pink)'; m.textContent = /Clave/.test(e.message) ? 'Clave incorrecta' : 'Sin conexión. Probá de nuevo.'; }
+  finally{ $('#pinOk').disabled = false; }
+}
+$('#openAdmin').onclick = ()=>{ openM('#mPin'); setTimeout(()=>$('#pin').focus(), 50); };
+$('#pinCancel').onclick = ()=>{ closeM('#mPin'); $('#pinMsg').textContent=''; };
+$('#pinOk').onclick = tryPin;
+$('#pin').addEventListener('keydown', e=>{ if(e.key==='Enter') tryPin(); });
+
+$('#asecs').addEventListener('click', e=>{ const b = e.target.closest('.scores button'); if(b && !b.disabled) score(b.dataset.p, b.dataset.g, +b.dataset.n, b); });
+$('#bExit').onclick = ()=>{ PIN = null; ss.set('postas_pin', null); ADM = null; document.body.classList.remove('admin'); $('#asecs').innerHTML=''; };
+$('#bFull').onclick = ()=>{ try{ document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen(); }catch(e){} };
+$('#bWinner').onclick = showWinner;
+$('#bTop').onclick = ()=> window.scrollTo({top:0,behavior:'smooth'});
+$('#wClose').onclick = ()=> closeM('#winner');
+$('#bReset').onclick = ()=> openM('#mReset');
+$('#resetNo').onclick = ()=> closeM('#mReset');
+$('#resetYes').onclick = async ()=>{
+  const m = $('#resetMsg'); m.style.color='var(--muted)'; m.textContent='Borrando…';
+  try{ const d = await api({ action:'reset', pin:PIN }); if(!d.ok) throw new Error(d.error);
+       m.textContent=''; closeM('#mReset'); await refreshAdmin(); toast('Listo: todo borrado.'); }
+  catch(e){ m.style.color='var(--pink)'; m.textContent='No se pudo borrar. Probá de nuevo.'; }
+};
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') ['#mPin','#mConfirm','#mReset','#winner'].forEach(closeM); });
+
+/* Actualización automática */
+async function tick(){
+  if(document.hidden) return;
+  if(document.body.classList.contains('admin')) await refreshAdmin();
+  else { try{ applyStatus(await api({action:'status'}, 12000)); }catch(e){} }
+}
+(function loop(){ setTimeout(async()=>{ await tick(); loop(); }, (document.body.classList.contains('admin') ? 5000 : 8000) + Math.random()*1500); })();
+document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) tick(); });
+
+/* Inicio: si el ingeniero ya había entrado en esta pestaña, vuelve directo al modo ingenieros. */
+if(PIN){ enterAdmin(PIN).catch(()=>{ PIN=null; ss.set('postas_pin', null); }); }
+api({action:'status'}, 12000).then(applyStatus).catch(()=>{});
+if(new URLSearchParams(location.search).get('modo') === 'ingenieros' && !PIN) openM('#mPin');
+</script>
+</body>
+</html>

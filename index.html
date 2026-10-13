@@ -6,6 +6,8 @@
 <title>Ingeniería Metalúrgica · UTN Facultad Regional Córdoba · Preinscripción</title>
 <meta name="description" content="Estudiá Ingeniería Metalúrgica en la UTN Facultad Regional Córdoba. Materiales metálicos y no metálicos, impresión 3D, simulación, nuevos materiales y economía circular. Preinscribite online.">
 <meta name="theme-color" content="#001484">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https://i.ytimg.com; frame-src https://www.youtube-nocookie.com; connect-src https://script.google.com https://script.googleusercontent.com; base-uri 'self'; form-action 'none'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
 <meta property="og:title" content="Ingeniería Metalúrgica · UTN FRC">
 <meta property="og:description" content="Diseñá los materiales del futuro. Preinscribite a Ingeniería Metalúrgica en la UTN Córdoba.">
 <meta property="og:image" content="assets/img/logo.jpg">
@@ -23,12 +25,14 @@
     <a href="#inicio" class="brand"><img src="assets/img/logo-redondo.png" alt=""><span>Ingeniería<br>Metalúrgica</span></a>
     <nav class="links" id="links">
       <a href="#trivia">Trivia</a>
+      <a href="postas.html">Desafío de postas</a>
       <a href="#carrera">La carrera</a>
-      <a href="#laboratorios">Laboratorios</a>
-      <a href="#salida">Salida laboral</a>
+      <a href="#videos">Videos</a>
       <a href="#ingreso">Ingreso</a>
       <a href="#faq">Preguntas</a>
+      <a href="admin.html" class="nav-admin-m">🔒 Acceso administración</a>
     </nav>
+    <a href="admin.html" class="nav-admin" title="Acceso administración">🔒 <span>Administración</span></a>
     <a href="#preinscripcion" class="btn btn-pink nav-cta">Preinscribite</a>
     <button class="burger" id="burger" aria-label="Abrir menú" aria-expanded="false"><span></span><span></span><span></span></button>
   </div>
@@ -58,7 +62,7 @@
       </div>
     </div>
     <div class="hero-mosaic reveal" aria-hidden="true">
-      <div class="tile t-photo t1"><img src="assets/img/lab-clase.jpg" alt=""></div>
+      <div class="tile t-photo t1"><img src="assets/img/fundicion.jpg" alt=""></div>
       <div class="tile t-pink t2">
         <svg viewBox="0 0 64 64"><circle cx="27" cy="27" r="16" fill="none" stroke="#fff" stroke-width="5"/><path d="M39 39l14 14" stroke="#fff" stroke-width="6" stroke-linecap="round"/><path d="M18 31l6-6 5 4 7-9" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>
         <span>Análisis</span>
@@ -67,12 +71,12 @@
         <svg viewBox="0 0 64 64"><rect x="10" y="8" width="44" height="48" rx="6" fill="none" stroke="#001484" stroke-width="5"/><path d="M10 20h44" stroke="#001484" stroke-width="5"/><path d="M28 20v10h8V20M32 30v6c0 4-8 3-8 8s6 4 10 4" fill="none" stroke="#001484" stroke-width="4" stroke-linecap="round"/><path d="M20 50h24" stroke="#001484" stroke-width="5" stroke-linecap="round"/></svg>
         <span>Impresión 3D</span>
       </div>
-      <div class="tile t-photo t4"><img src="assets/img/graduados.jpg" alt=""></div>
+      <div class="tile t-photo t4"><img src="assets/img/colacion.jpg" alt=""></div>
       <div class="tile t-cyan t5">
         <svg viewBox="0 0 64 64"><g fill="none" stroke="#001484" stroke-width="4"><ellipse cx="32" cy="32" rx="26" ry="10"/><ellipse cx="32" cy="32" rx="26" ry="10" transform="rotate(60 32 32)"/><ellipse cx="32" cy="32" rx="26" ry="10" transform="rotate(120 32 32)"/></g><circle cx="32" cy="32" r="5" fill="#001484"/></svg>
         <span>Materiales</span>
       </div>
-      <div class="tile t-photo t6"><img src="assets/img/taller.jpg" alt=""></div>
+      <div class="tile t-photo t6"><img src="assets/img/ingreso-auditorio.jpg" alt=""></div>
     </div>
   </div>
   <div class="marquee" aria-hidden="true"><div class="marquee-in">
@@ -89,9 +93,18 @@
       <h2>¿Metalúrgica = <span class="strike">fierros</span>?</h2>
       <p class="sec-sub">Poné a prueba lo que sabés. Spoiler: es mucho más que eso.</p>
     </div>
-    <div class="quiz reveal" id="quiz">
-      <div class="quiz-top"><div class="quiz-dots" id="qDots"></div><span class="quiz-n" id="qN"></span></div>
-      <div id="qBody"></div>
+    <div class="quiz-row">
+      <div class="quiz reveal" id="quiz">
+        <div class="quiz-top"><div class="quiz-dots" id="qDots"></div><span class="quiz-n" id="qN"></span></div>
+        <div id="qBody"></div>
+      </div>
+      <a class="postas-card reveal" href="postas.html">
+        <span class="pc-tag">Nuevo juego</span>
+        <h3>Desafío de Postas</h3>
+        <p>5 problemas reales de ingeniería: autos eléctricos, naves espaciales, corrosión, basura electrónica y piezas con trampa.</p>
+        <p class="pc-note">👥 Pensado para jugar en grupo en nuestras jornadas, pero podés jugarlo solo/a.</p>
+        <span class="btn btn-pink">Jugar ahora ▸</span>
+      </a>
     </div>
   </div>
 </section>
@@ -111,7 +124,7 @@
       <article class="ccard reveal" style="--c:var(--violet)"><span class="cnum">04</span><h3>Reciclado</h3><p>Economía circular: recuperar y volver a usar los materiales, cuidando el ambiente.</p></article>
     </div>
     <div class="comp reveal">
-      <div class="comp-img"><img src="assets/img/presentacion.jpg" alt="Estudiantes de Ingeniería Metalúrgica presentando un proyecto"></div>
+      <div class="comp-img"><img src="assets/img/proyecto-reciclado.jpg" alt="Estudiantes presentando un proyecto de planta piloto de reciclado de escoria de aleación estaño-plomo"></div>
       <div class="comp-txt">
         <p class="eyebrow"><span class="dot amber"></span>Competencias</p>
         <h3>¿Qué hace un/a Ingeniero/a Metalúrgico/a?</h3>
@@ -182,6 +195,25 @@
   </div>
 </section>
 
+<!-- ============ VIDEOS ============ -->
+<section class="sec sec-light" id="videos">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <p class="eyebrow dark"><span class="dot pink"></span>Videos</p>
+      <h2>Conocé la carrera <span class="hl-pink">en 5 minutos</span>.</h2>
+      <p class="sec-sub">La presentación oficial y lo que cuentan nuestros estudiantes.</p>
+    </div>
+    <div class="videos">
+      <div class="yt yt-main reveal" data-id="VTJWxqBt9OQ" data-title="Presentación de la carrera de Ingeniería Metalúrgica"></div>
+      <div class="shorts">
+        <div class="yt yt-short reveal" data-id="W7J1lLyAdlk" data-title="Estudiantes de Metalúrgica"></div>
+        <div class="yt yt-short reveal" data-id="VxnbANZCEco" data-title="Estudiantes de Metalúrgica"></div>
+        <div class="yt yt-short reveal" data-id="g4bguU-zBUE" data-title="Estudiantes de Metalúrgica"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- ============ GALERÍA ============ -->
 <section class="sec" id="vida">
   <div class="wrap">
@@ -190,13 +222,13 @@
       <h2>Así se vive la carrera.</h2>
     </div>
     <div class="gallery">
-      <figure class="g1 reveal"><img src="assets/img/lab-clase.jpg" alt="Clase en el laboratorio"><figcaption>Clases en laboratorio</figcaption></figure>
-      <figure class="g2 reveal"><img src="assets/img/grupo-visita.jpg" alt="Grupo de estudiantes"><figcaption>Comunidad Metalúrgica</figcaption></figure>
-      <figure class="g3 reveal"><img src="assets/img/charla.jpg" alt="Charla en la UTN FRC"><figcaption>Charlas y jornadas</figcaption></figure>
-      <figure class="g4 reveal"><img src="assets/img/graduados.jpg" alt="Graduados con sus diplomas"><figcaption>Graduados</figcaption></figure>
-      <figure class="g5 reveal"><img src="assets/img/taller.jpg" alt="Práctica en taller"><figcaption>Práctica en taller</figcaption></figure>
-      <figure class="g6 reveal"><img src="assets/img/auditorio.jpg" alt="Auditorio de la facultad"><figcaption>Encuentros en la FRC</figcaption></figure>
-      <figure class="g7 reveal"><img src="assets/img/facultad.jpg" alt="Edificio de la UTN Facultad Regional Córdoba"><figcaption>UTN · Facultad Regional Córdoba</figcaption></figure>
+      <figure class="g1 reveal"><img src="assets/img/visita-escuelas.jpg" alt="Estudiantes secundarios visitando el laboratorio de Metalúrgica" loading="lazy"><figcaption>Visitas de escuelas</figcaption></figure>
+      <figure class="g2 reveal"><img src="assets/img/taller-certificados.jpg" alt="Estudiantes con sus certificados junto a docentes" loading="lazy"><figcaption>Talleres y prácticas</figcaption></figure>
+      <figure class="g3 reveal"><img src="assets/img/lab-clase.jpg" alt="Clase en el laboratorio" loading="lazy"><figcaption>Clases en laboratorio</figcaption></figure>
+      <figure class="g4 reveal"><img src="assets/img/certificado.jpg" alt="Estudiante recibiendo un certificado" loading="lazy"><figcaption>Reconocimientos</figcaption></figure>
+      <figure class="g5 reveal"><img src="assets/img/jornada.jpg" alt="Jornada con invitados en la UTN FRC" loading="lazy"><figcaption>Jornadas e invitados</figcaption></figure>
+      <figure class="g6 reveal"><img src="assets/img/charla.jpg" alt="Charla en la UTN FRC" loading="lazy"><figcaption>Charlas</figcaption></figure>
+      <figure class="g7 reveal"><img src="assets/img/facultad.jpg" alt="Edificio de la UTN Facultad Regional Córdoba" loading="lazy"><figcaption>UTN · Facultad Regional Córdoba</figcaption></figure>
     </div>
   </div>
 </section>
@@ -286,8 +318,7 @@
           <legend>Datos para la inscripción</legend>
           <p class="hint">Son los mismos que pide la facultad: así te ayudamos a completar el trámite.</p>
           <div class="grid2">
-            <label>DNI*<input name="dni" inputmode="numeric" required placeholder="Sin puntos"></label>
-            <label>CUIL*<input name="cuil" inputmode="numeric" required placeholder="20-12345678-3"></label>
+            <label class="span2">CUIL*<input name="cuil" inputmode="numeric" required placeholder="20-12345678-3" maxlength="13"><small class="fhelp">Lo encontrás en tu DNI o en <a href="https://www.anses.gob.ar/consulta/constancia-de-cuil" target="_blank" rel="noopener">ANSES</a>. Con el CUIL ya tenemos tu DNI.</small></label>
             <label>Fecha de nacimiento*<input name="nacimiento" type="date" required></label>
             <label>Estado civil*
               <select name="estadoCivil" required><option value="">Elegí</option><option>Soltero/a</option><option>Casado/a</option><option>Separado/a</option><option>Divorciado/a</option><option>Viudo/a</option><option>Unión de hecho</option><option>Unión civil</option></select>
@@ -317,7 +348,7 @@
             </label>
           </div>
           <label>¿Querés contarnos algo más? <span class="opt">(opcional)</span><textarea name="consultaPre" rows="3" placeholder="Dudas, si venís de otra carrera, etc."></textarea></label>
-          <label class="check"><input type="checkbox" name="acepto" required> Acepto que el Departamento de Ingeniería Metalúrgica de la UTN FRC use mis datos para contactarme sobre el ingreso.</label>
+          <label class="check"><input type="checkbox" name="acepto" required> <span>Acepto que el Departamento de Ingeniería Metalúrgica de la UTN FRC use mis datos solo para acompañarme en el ingreso, según la <a href="privacidad.html" target="_blank">política de privacidad</a> (Ley 25.326).</span></label>
         </fieldset>
 
         <p class="ferr" id="ferr" role="alert"></p>
@@ -357,7 +388,7 @@
       <li><a href="https://www.google.com/maps/search/?api=1&query=UTN+Facultad+Regional+C%C3%B3rdoba+Maestro+L%C3%B3pez+y+Cruz+Roja+Argentina" target="_blank" rel="noopener"><i>⌖</i>Maestro López esq. Cruz Roja Argentina, Córdoba</a></li>
     </ul>
   </div>
-  <div class="wrap foot-bottom"><span>© Ingeniería Metalúrgica · UTN FRC</span><a href="admin.html">Acceso administración</a></div>
+  <div class="wrap foot-bottom"><span>© Ingeniería Metalúrgica · UTN FRC · <a href="privacidad.html">Política de privacidad</a></span><a class="foot-admin" href="admin.html">🔒 Acceso administración</a></div>
 </footer>
 
 <a href="#preinscripcion" class="fab" id="fab">Preinscribite</a>

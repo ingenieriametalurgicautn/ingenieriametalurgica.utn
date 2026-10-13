@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Contanos el motivo · Ingeniería Metalúrgica UTN FRC</title>
+<meta name="theme-color" content="#001484">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self'; connect-src https://script.google.com https://script.googleusercontent.com; base-uri 'self'; form-action 'none'">
+<link rel="icon" href="assets/img/logo-redondo.png">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/estilos.css">
+<style>
+  .mot{min-height:100vh;display:grid;place-items:center;padding:20px}
+  .mot-card{background:#fff;color:var(--ink);border-radius:26px;max-width:540px;width:100%;padding:28px;box-shadow:0 30px 70px rgba(0,0,0,.35);border-top:10px solid var(--amber)}
+  .mot-card img{width:80px;border-radius:16px}
+  .mot-card h1{font-weight:900;color:var(--navy);font-size:1.5rem;margin-top:14px;text-transform:uppercase;line-height:1.1}
+  .mot-card p{color:var(--muted);font-weight:600;margin-top:8px}
+  .opts{display:grid;gap:8px;margin-top:16px}
+  .opt{display:flex;gap:10px;align-items:center;border:2px solid var(--line);border-radius:12px;padding:11px 12px;font-weight:700;color:var(--navy);cursor:pointer;text-transform:none;font-size:.95rem;margin:0}
+  .opt input{width:18px;height:18px;margin:0;accent-color:var(--pink)}
+  .opt:has(input:checked){border-color:var(--navy);background:var(--light)}
+  .mot-card textarea{margin-top:12px}
+  .mot-card .btn{width:100%;margin-top:16px}
+  .msg{margin-top:12px;font-weight:800;min-height:1.2em}
+</style>
+</head>
+<body>
+<main class="mot">
+  <div class="mot-card" id="card">
+    <img src="assets/img/logo.jpg" alt="Ingeniería Metalúrgica UTN">
+    <h1>¿Por qué no seguiste con el ingreso?</h1>
+    <p>Tu respuesta nos ayuda a mejorar el acompañamiento a futuros aspirantes. Gracias por tomarte un minuto.</p>
+    <div class="opts" id="opts"></div>
+    <textarea id="det" rows="3" maxlength="800" placeholder="¿Querés contarnos algo más? (opcional)"></textarea>
+    <button class="btn btn-pink btn-lg" id="send">Enviar respuesta</button>
+    <p class="msg" id="msg" role="alert"></p>
+  </div>
+</main>
+<script src="assets/js/config.js"></script>
+<script src="assets/js/motivo.js"></script>
+</body>
+</html>

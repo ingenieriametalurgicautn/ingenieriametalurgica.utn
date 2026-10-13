@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Desafío de Postas · Ingeniería Metalúrgica UTN FRC</title>
+<meta name="description" content="5 desafíos reales de ingeniería de materiales. Pensado para jugar en grupo, también podés jugarlo solo/a.">
+<meta name="theme-color" content="#001484">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'none'; base-uri 'self'; form-action 'none'">
+<link rel="icon" href="assets/img/logo-redondo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/estilos.css">
+<link rel="stylesheet" href="assets/css/postas.css">
+</head>
+<body>
+<header class="nav solid" id="nav">
+  <div class="nav-in">
+    <a href="index.html" class="brand"><img src="assets/img/logo-redondo.png" alt=""><span>Ingeniería<br>Metalúrgica</span></a>
+    <nav class="links" id="links">
+      <a href="index.html#trivia">Trivia</a>
+      <a href="postas.html" class="on">Desafío de postas</a>
+      <a href="index.html#carrera">La carrera</a>
+      <a href="index.html#ingreso">Ingreso</a>
+    </nav>
+    <a href="index.html#preinscripcion" class="btn btn-pink nav-cta">Preinscribite</a>
+    <button class="burger" id="burger" aria-label="Abrir menú" aria-expanded="false"><span></span><span></span><span></span></button>
+  </div>
+</header>
+
+<main>
+  <section class="p-hero">
+    <div class="wrap">
+      <p class="eyebrow"><span class="dot amber"></span>Juego · 5 desafíos</p>
+      <h1>Desafío de <span class="hl">Postas</span></h1>
+      <p class="lead">Cinco problemas reales que resuelve un ingeniero o ingeniera metalúrgica: autos eléctricos, naves espaciales, corrosión, basura electrónica y piezas con trampa.</p>
+      <div class="p-note"><b>👥 Es una actividad pensada para grupos</b> en nuestras jornadas y visitas, rotando por estaciones con un profe. <b>Pero podés jugarla solo/a</b> desde acá: elegí, justificá y descubrí la respuesta de la ingeniería.</div>
+      <div class="p-ctas">
+        <a class="btn btn-pink btn-lg" href="#juego">Jugar solo/a</a>
+        <a class="btn btn-ghost btn-lg" href="postas-grupos.html">Estoy en una jornada con mi grupo</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec sec-light">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="eyebrow dark"><span class="dot cyan"></span>En las jornadas</p>
+        <h2>¿Cómo funcionan <span class="hl-pink">las postas</span>?</h2>
+      </div>
+      <ol class="p-steps">
+        <li style="--c:var(--pink)"><span>1</span><h3>Armen su grupo</h3><p>Hay 4 grupos. Recuerden su número: lo van a elegir en cada posta.</p></li>
+        <li style="--c:var(--amber)"><span>2</span><h3>Escuchen el dilema</h3><p>En cada posta el profe plantea un problema real. Charlen, discutan y piensen como ingenieros.</p></li>
+        <li style="--c:var(--cyan)"><span>3</span><h3>Carguen una respuesta</h3><p>Elijan UNA opción en la web y escriban por qué. Solo una vez por posta: no se puede cambiar.</p></li>
+        <li style="--c:var(--violet)"><span>4</span><h3>Roten y sumen puntos</h3><p>Pasen a la siguiente posta. Los ingenieros puntúan cada respuesta del 1 al 10.</p></li>
+      </ol>
+      <p class="p-lock">🔒 Nadie ve las respuestas de los otros grupos hasta el final. Al cierre se revelan los puntajes y el grupo ganador 🏆</p>
+    </div>
+  </section>
+
+  <section class="sec" id="juego">
+    <div class="wrap narrow">
+      <div class="sec-head">
+        <p class="eyebrow"><span class="dot pink"></span>Modo individual</p>
+        <h2>Tu turno.</h2>
+        <p class="sec-sub light">Leé el dilema, pensá las preguntas guía, elegí una opción y descubrí qué haría la ingeniería.</p>
+      </div>
+      <div class="p-progress" id="pProg"></div>
+      <div id="pGame"></div>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="stripe"><span></span><span></span><span></span></div>
+  <div class="wrap foot-bottom"><span>© Ingeniería Metalúrgica · UTN FRC · <a href="privacidad.html">Política de privacidad</a></span><a class="foot-admin" href="index.html#preinscripcion">Preinscribite ▸</a></div>
+</footer>
+
+<script src="assets/js/postas-data.js"></script>
+<script src="assets/js/postas.js"></script>
+</body>
+</html>
