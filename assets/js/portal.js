@@ -14,6 +14,12 @@
     set(v) { try { v ? localStorage.setItem(KEY, JSON.stringify(v)) : localStorage.removeItem(KEY); } catch (e) {} }
   };
   let SES = ses.get(), D = null, DATO = '', docActual = '', vista = 'camino';
+  /* Código pedido y todavía sin usar: se recuerda 10 min por si el celular cierra la app al ir a buscar el email */
+  const PEND = 'im_portal_pend';
+  const pend = {
+    get() { try { const p = JSON.parse(localStorage.getItem(PEND)); return p && p.exp > Date.now() ? p : null; } catch (e) { return null; } },
+    set(v) { try { v ? localStorage.setItem(PEND, JSON.stringify(v)) : localStorage.removeItem(PEND); } catch (e) {} }
+  };
 
   function toast(m, ms) { const t = $('#toast'); t.textContent = m; t.classList.add('on'); clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('on'), ms || 3000); }
   const err = (m, el) => { (el || $('#lErr')).textContent = m || ''; };
@@ -35,6 +41,7 @@
       const d = await imApi({ action: 'pCodigo', dato: DATO });
       if (!d.ok) throw new Error(d.error);
       $('#codMsg').textContent = d.msg; $('#step1').hidden = true; $('#step2').hidden = false;
+      pend.set({ dato: DATO, msg: d.msg, exp: Date.now() + 10 * 60000 });
       $('#codigo').value = ''; setTimeout(() => $('#codigo').focus(), 50);
     } catch (e) { err(e.message || 'No se pudo enviar el código.'); }
     finally { $('#bCod').disabled = false; }
@@ -46,7 +53,7 @@
     try {
       const d = await imApi({ action: 'pEntrar', dato: DATO, codigo });
       if (!d.ok) throw new Error(d.error);
-      SES = { token: d.token, h: d.horas, exp: Date.now() + d.horas * 3600000 }; ses.set(SES);
+      SES = { token: d.token, h: d.horas, exp: Date.now() + d.horas * 3600000 }; ses.set(SES); pend.set(null);
       mostrar(d);
     } catch (e) { err(e.message); }
     finally { $('#bEnt').disabled = false; }
@@ -56,7 +63,7 @@
   $('#bEnt').onclick = entrar;
   $('#codigo').oninput = e => { e.target.value = e.target.value.replace(/\D/g, '').slice(0, 6); if (e.target.value.length === 6) entrar(); };
   $('#bRe').onclick = () => { $('#step2').hidden = true; $('#step1').hidden = false; pedirCodigo(); };
-  $('#bCam').onclick = () => { $('#step2').hidden = true; $('#step1').hidden = false; err(''); $('#dato').focus(); };
+  $('#bCam').onclick = () => { pend.set(null); $('#step2').hidden = true; $('#step1').hidden = false; err(''); $('#dato').focus(); };
 
   function salir(msg) {
     if (SES) imApi({ action: 'pSalir', token: SES.token }).catch(() => {});
@@ -207,11 +214,15 @@
     try { const d = await call({ action: 'pYo' }); D = d; pintarCamino(); pintarDocs(); pintarMsg(); } catch (e) {}
   }
   setInterval(() => { if (SES && D && !document.hidden && !$('.modal.on')) refrescar(); }, 60000);
+  /* Al volver a la app (por ejemplo desde el ícono del celular) se actualiza enseguida */
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && SES && D && !$('.modal.on')) refrescar(); });
   document.addEventListener('keydown', e => { if (e.key === 'Escape') $$('.modal').forEach(m => m.classList.remove('on')); });
 
   /* ---------- Inicio ---------- */
   if (location.hash === '#mensajes') vista = 'msg';
   if (location.hash === '#documentacion') vista = 'docs';
+  const P = !SES && pend.get();
+  if (P) { DATO = P.dato; $('#dato').value = P.dato; $('#codMsg').textContent = P.msg; $('#step1').hidden = true; $('#step2').hidden = false; }
   if (SES) {
     $('#login').hidden = true;
     call({ action: 'pYo' }).then(mostrar).catch(() => { $('#login').hidden = false; });
