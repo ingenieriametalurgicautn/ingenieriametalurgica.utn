@@ -358,4 +358,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--cyan);bo
 .mi-txt h3{margin:0 0 6px;font-size:1.15rem;color:#fff}
 .mi-txt p{margin:0;color:rgba(255,255,255,.82);line-height:1.5}
 .mi-box .btn{flex:0 0 auto}
-@media (max-width:760px){.mi-box{flex-direction:column;align-items:flex-start}.mi-box .btn{width:100%}}
+.mi-acc{flex:0 0 auto;display:grid;gap:10px;justify-items:center}
+.mi-app{color:#4ED6FF;font-weight:800;font-size:.86rem;text-decoration:none;border-bottom:1px dashed rgba(78,214,255,.6);padding-bottom:1px}
+.mi-app:hover{color:#fff}
+@media (max-width:760px){.mi-box{flex-direction:column;align-items:flex-start}.mi-box .btn,.mi-acc{width:100%}}

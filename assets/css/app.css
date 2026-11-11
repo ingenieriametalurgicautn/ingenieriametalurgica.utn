@@ -1,0 +1,17 @@
+/* Botón e instrucciones para instalar la app (Mi ingreso y panel) */
+.im-inst{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:2px dashed currentColor;background:transparent;color:#001484;font:800 .86rem Montserrat,system-ui,sans-serif;padding:11px 14px;border-radius:14px;cursor:pointer;width:100%}
+.im-inst:hover{background:#F4F6FF}
+.im-inst.chico{width:auto;border:0;background:rgba(255,255,255,.14);color:#fff;padding:8px 12px;border-radius:10px;font-size:.8rem}
+.im-inst.claro{color:#fff;border-color:rgba(255,255,255,.6)}
+.im-inst.claro:hover{background:rgba(255,255,255,.1)}
+.im-sheet{position:fixed;inset:0;z-index:9999;background:rgba(0,13,92,.6);display:flex;align-items:flex-end;justify-content:center;padding:12px}
+.im-sheet[hidden]{display:none}
+.im-sheet>div{background:#fff;color:#0B1446;border-radius:22px;max-width:440px;width:100%;padding:22px 22px 18px;font-family:Montserrat,system-ui,sans-serif;box-shadow:0 20px 60px rgba(0,0,0,.4);border-top:8px solid #F5AB12}
+.im-sheet h3{font-weight:900;color:#001484;font-size:1.15rem;margin:0 0 4px;display:flex;align-items:center;gap:10px}
+.im-sheet h3 img{width:40px;height:40px;border-radius:10px}
+.im-sheet p{color:#5A6394;font-weight:600;font-size:.88rem;margin:6px 0 10px}
+.im-sheet ol{margin:0 0 14px 20px;display:grid;gap:8px;font-weight:600;font-size:.92rem;line-height:1.4}
+.im-sheet b{color:#001484}
+.im-sheet .k{display:inline-block;border:1px solid #E3E7FA;background:#F4F6FF;border-radius:6px;padding:0 6px;font-weight:800}
+.im-sheet button{width:100%;border:0;background:#FF2566;color:#fff;font:800 .95rem Montserrat,system-ui,sans-serif;padding:12px;border-radius:14px;cursor:pointer}
+@media (min-width:700px){.im-sheet{align-items:center}}
