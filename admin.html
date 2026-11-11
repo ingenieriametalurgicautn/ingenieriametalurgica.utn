@@ -31,6 +31,7 @@
     <p>Ingresá con tu cuenta de Google. Solo pueden entrar las cuentas autorizadas por la administración del Departamento.</p>
     <div id="gbtn" class="gbtn"></div>
     <p class="lerr" id="lErr" role="alert"></p>
+    <button class="im-inst grande" data-instalar hidden><span class="im-ic">📲</span><span><b>Descargar la app del panel</b><small>Para el equipo: seguí a los aspirantes desde el celular</small></span></button>
     <ul class="sec-list">
       <li>🔒 No se guardan contraseñas: usás la seguridad de tu cuenta de Google.</li>
       <li>⏱ La sesión se cierra sola después de un rato sin uso.</li>
@@ -55,13 +56,20 @@
       <span class="who" id="who"></span>
       <button class="btn btn-ghost inbox" id="bInbox" title="Mensajes sin leer">💬 <i id="inboxN">0</i></button>
       <button class="btn btn-ghost" id="bRefresh" title="Actualizar">↻</button>
-      <button class="im-inst chico" data-instalar hidden title="Instalar el panel como app">📲</button>
+      <a class="btn btn-ghost" href="index.html" title="Ir a la web de Ingeniería Metalúrgica">🌐 Web principal</a>
+      <button class="btn im-cab" data-instalar hidden title="Instalar el panel como app en el celular o la compu">📲 Instalar app</button>
       <button class="btn btn-ghost adm" id="bCsv">⬇ Exportar</button>
       <button class="btn btn-ghost" id="bOut">Salir</button>
     </div>
   </header>
 
   <!-- SEGUIMIENTO -->
+<div class="im-banner adm-w" data-instalar-banner hidden>
+  <img src="assets/img/icon-192.png" alt="" class="im-banner-ic">
+  <div class="im-banner-tx"><b>Descargá el panel como app</b><span>Seguí a los aspirantes desde el celular, con su propio ícono.</span></div>
+  <button class="im-banner-bt" data-instalar>📲 Instalar app</button>
+  <button class="im-banner-x" data-ocultar title="Ahora no" aria-label="Cerrar aviso">✕</button>
+</div>
   <main class="main" id="tab-seg">
     <section class="stages" id="stages"></section>
 

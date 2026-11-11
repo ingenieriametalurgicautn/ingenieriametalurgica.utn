@@ -1,7 +1,7 @@
 /* Service worker · Ingeniería Metalúrgica UTN FRC
    Permite instalar la web como app y que abra rápido. Nunca guarda datos personales:
    todo lo que va a la planilla (script.google.com) pasa directo por la red. */
-const VERSION = 'im-v4-2';
+const VERSION = 'im-v4-3';
 const BASE = ['./', 'index.html', 'mi-ingreso.html', 'admin.html', 'privacidad.html',
   'assets/css/estilos.css', 'assets/css/portal.css', 'assets/css/admin.css', 'assets/css/app.css',
   'assets/js/config.js', 'assets/js/portal.js', 'assets/js/admin.js', 'assets/js/sitio.js', 'assets/js/app.js',
