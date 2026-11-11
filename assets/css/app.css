@@ -15,3 +15,28 @@
 .im-sheet .k{display:inline-block;border:1px solid #E3E7FA;background:#F4F6FF;border-radius:6px;padding:0 6px;font-weight:800}
 .im-sheet button{width:100%;border:0;background:#FF2566;color:#fff;font:800 .95rem Montserrat,system-ui,sans-serif;padding:12px;border-radius:14px;cursor:pointer}
 @media (min-width:700px){.im-sheet{align-items:center}}
+
+/* ---- v2: botones de instalación bien visibles ---- */
+.im-inst.grande{border:0;background:linear-gradient(135deg,#FF2566,#C8154D);color:#fff;padding:14px 16px;border-radius:16px;justify-content:flex-start;gap:12px;text-align:left;box-shadow:0 10px 24px rgba(255,37,102,.35);animation:im-pulso 2.4s ease-in-out 3}
+.im-inst.grande:hover{filter:brightness(1.06);background:linear-gradient(135deg,#FF2566,#C8154D)}
+.im-inst.grande .im-ic{font-size:1.8rem;line-height:1}
+.im-inst.grande b{display:block;font-size:1.02rem;font-weight:900;letter-spacing:.01em}
+.im-inst.grande small{display:block;font-weight:600;font-size:.76rem;opacity:.92;margin-top:2px}
+@keyframes im-pulso{0%,100%{transform:scale(1)}50%{transform:scale(1.025)}}
+.im-cab{background:#FF2566!important;color:#fff!important;border:0!important;font-weight:900!important}
+.out.web{text-decoration:none;display:inline-flex;align-items:center}
+.im-banner{display:flex;align-items:center;gap:12px;background:linear-gradient(135deg,#001484,#0B2BC9);color:#fff;border-radius:18px;padding:12px 14px;box-shadow:0 10px 26px rgba(0,20,132,.25);border-left:6px solid #FF2566;font-family:Montserrat,system-ui,sans-serif;margin-bottom:14px}
+.im-banner[hidden]{display:none}
+.im-banner.adm-w{max-width:1460px;margin:16px auto 0;width:calc(100% - 40px)}
+.im-banner-ic{width:48px;height:48px;border-radius:12px;flex:0 0 auto;box-shadow:0 0 0 2px rgba(255,255,255,.25)}
+.im-banner-tx{flex:1;min-width:0;line-height:1.25}
+.im-banner-tx b{display:block;font-weight:900;font-size:.98rem}
+.im-banner-tx span{display:block;font-weight:600;font-size:.78rem;color:#C9D1FF;margin-top:2px}
+.im-banner-bt{flex:0 0 auto;border:0;background:#FF2566;color:#fff;font:900 .9rem Montserrat,system-ui,sans-serif;padding:11px 16px;border-radius:12px;cursor:pointer;white-space:nowrap;box-shadow:0 6px 16px rgba(255,37,102,.4)}
+.im-banner-bt:hover{filter:brightness(1.08)}
+.im-banner-x{flex:0 0 auto;border:0;background:transparent;color:#C9D1FF;font-size:1rem;padding:6px;cursor:pointer;align-self:flex-start}
+@media (max-width:560px){.im-banner{flex-wrap:wrap}.im-banner-tx{flex:1 1 calc(100% - 110px)}.im-banner-bt{width:100%;order:3;padding:12px}}
+.im-sheet .im-link{display:flex;gap:8px;margin:0 0 12px}
+.im-sheet .im-link input{flex:1;min-width:0;border:2px solid #E3E7FA;border-radius:10px;padding:9px 10px;font:600 .82rem Montserrat,system-ui,sans-serif;color:#0B1446}
+.im-sheet .im-link button{width:auto;padding:9px 14px;font-size:.85rem;background:#001484}
+.im-sheet .sec{background:#F4F6FF;color:#001484}
