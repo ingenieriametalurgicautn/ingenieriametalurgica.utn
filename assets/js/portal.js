@@ -103,7 +103,7 @@
       { t: 'Cursillo de ingreso', ok: cursillo, d: on(y['Req: Equivalencia']) ? 'Aprobado por equivalencia.' : `Matemática, Física e Introducción a la Vida Universitaria (${mods}/3 aprobados).` },
       { t: 'Documentación', ok: on(y['Req: Documentación']), d: 'Subila desde la pestaña Documentación.', go: 'docs' },
       { t: 'Título secundario', ok: on(y['Req: Requisitos académicos']), d: 'Requisito académico para el cursado.' },
-      { t: 'Inscripción al cursado en Guaraní', ok: on(y['Req: Inscripción Guaraní']), d: 'Último paso para empezar a cursar.' },
+      { t: 'Inscripción al cursado', ok: on(y['Req: Inscripción Guaraní']), d: 'Último paso para empezar a cursar.' },
       { t: '¡Estudiante de Ingeniería Metalúrgica!', ok: y['Estado'] === 'Estudiante', d: 'Te esperamos en clases 🎉', fin: true }
     ];
   }

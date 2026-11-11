@@ -17,9 +17,13 @@
   let aviso = null;
 
   const botones = () => Array.from(document.querySelectorAll('[data-instalar]'));
+  // Aviso grande: se puede cerrar con "Ahora no" y vuelve a aparecer a los 7 días
+  const KEY_OCULTO = 'im_app_banner_oculto';
+  const oculto = () => { try { return Number(localStorage.getItem(KEY_OCULTO) || 0) > Date.now(); } catch (e) { return false; } };
   function actualizar() {
-    const ver = !instalada() && (aviso || movil);
+    const ver = !instalada();   // visible en celular y en compu, para alumnos y para el equipo
     botones().forEach(b => { b.hidden = !ver; });
+    document.querySelectorAll('[data-instalar-banner]').forEach(b => { b.hidden = !ver || oculto(); });
   }
 
   window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); aviso = e; actualizar(); });
@@ -39,6 +43,12 @@
     if (modo === 'nativo') {
       cuerpo = `<p>Queda como una app más, con su ícono en la pantalla de inicio. No ocupa casi lugar y no hace falta ir a ninguna tienda.</p>
         <button data-ok>📲 Instalar ahora</button>`;
+    } else if (modo === 'compu') {
+      const url = location.origin + location.pathname.replace(/[^/]*$/, '') + (nombreApp === 'Panel IM' ? 'admin.html' : 'mi-ingreso.html') + '#instalar';
+      cuerpo = `<p>La app está pensada para el <b>celular</b>. Abrí este enlace desde el celular y tocá <b>📲 Instalar app</b>:</p>
+        <div class="im-link"><input readonly value="${url}" aria-label="Enlace para abrir en el celular"><button data-copiar>Copiar</button></div>
+        <p>¿La querés también en esta compu? En <b>Chrome</b> o <b>Edge</b>, tocá el ícono de instalar <span class="k">⊕</span> a la derecha de la barra de direcciones.</p>
+        <button data-cerrar>Entendido</button>`;
     } else if (iOS) {
       cuerpo = `<p>En iPhone se instala desde <b>Safari</b> (si abriste el link desde Instagram o WhatsApp, primero tocá ⋯ › <b>Abrir en Safari</b>).</p>
         <ol><li>Tocá el botón <b>Compartir</b> <span class="k">⬆︎</span> (abajo en el centro, o arriba a la derecha en iPad).</li>
@@ -55,6 +65,9 @@
     hoja.innerHTML = `<div>${encabezado}${cuerpo}</div>`;
     const ok = hoja.querySelector('[data-ok]');
     if (ok) ok.onclick = instalar;
+    const cp = hoja.querySelector('[data-copiar]');
+    if (cp) cp.onclick = () => { const i = hoja.querySelector('.im-link input'); i.select();
+      (navigator.clipboard ? navigator.clipboard.writeText(i.value) : Promise.reject()).then(() => { cp.textContent = '✓ Copiado'; }, () => { document.execCommand('copy'); cp.textContent = '✓ Copiado'; }); };
     hoja.hidden = false;
   }
 
@@ -65,19 +78,23 @@
       try { await aviso.userChoice; } catch (e) {}
       aviso = null; actualizar();
     } else {
-      mostrarPasos('pasos');
+      mostrarPasos(movil ? 'pasos' : 'compu');
     }
   }
 
   document.addEventListener('click', e => {
     const b = e.target.closest('[data-instalar]');
-    if (b) { e.preventDefault(); instalar(); }
+    if (b) { e.preventDefault(); instalar(); return; }
+    if (e.target.closest('[data-ocultar]')) {
+      try { localStorage.setItem(KEY_OCULTO, String(Date.now() + 7 * 864e5)); } catch (x) {}
+      actualizar();
+    }
   });
 
   // Llegó desde el botón "Descargar la app" de la web pública
   if (/[#&?]instalar\b/.test(location.hash + location.search) && !instalada()) {
     history.replaceState(null, '', location.pathname);
-    setTimeout(() => mostrarPasos(aviso ? 'nativo' : 'pasos'), aviso ? 0 : 1200);
+    setTimeout(() => mostrarPasos(aviso ? 'nativo' : (movil ? 'pasos' : 'compu')), aviso ? 0 : 1200);
     window.addEventListener('beforeinstallprompt', () => { if (hoja && !hoja.hidden) mostrarPasos('nativo'); }, { once: true });
   }
 

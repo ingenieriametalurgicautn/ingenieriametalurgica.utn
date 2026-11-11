@@ -29,7 +29,7 @@
         { k: 'Req: Equivalencia', t: 'Ingreso aprobado por equivalencia', alt: true }],
     3: [{ k: 'Req: Documentación', t: 'Documentación entregada', req: true },
         { k: 'Req: Requisitos académicos', t: 'Requisitos académicos (título secundario)', req: true },
-        { k: 'Req: Inscripción Guaraní', t: 'Inscripto al cursado en Guaraní', req: true }]
+        { k: 'Req: Inscripción Guaraní', t: 'Inscripto al cursado', req: true }]
   };
   const DATOS = ['Apellidos', 'Nombres', 'Email', 'Teléfono', 'CUIL', 'Fecha de nacimiento', 'Estado civil', 'Nacionalidad', 'País',
     'Dirección', 'Barrio', 'Localidad', 'Provincia', 'Código postal', 'Colegio', 'Secundario técnico', 'Egreso', 'Cómo nos conoció', 'Consulta'];
@@ -52,7 +52,7 @@
     if (!cursillo(r)) f.push('cursillo aprobado');
     if (!on(r['Req: Documentación'])) f.push('documentación');
     if (!on(r['Req: Requisitos académicos'])) f.push('requisitos académicos');
-    if (!on(r['Req: Inscripción Guaraní'])) f.push('inscripción en Guaraní');
+    if (!on(r['Req: Inscripción Guaraní'])) f.push('inscripción al cursado');
     return f;
   }
   const progreso = r => 6 - faltantes(r).length;
