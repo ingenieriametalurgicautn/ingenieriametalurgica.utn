@@ -8,11 +8,18 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://accounts.google.com/gsi/client; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://accounts.google.com/gsi/style; font-src https://fonts.gstatic.com; img-src 'self' data: https://*.googleusercontent.com; frame-src https://accounts.google.com/gsi/; connect-src https://script.google.com https://script.googleusercontent.com https://accounts.google.com/gsi/; base-uri 'self'; form-action 'none'">
 <title>Panel de aspirantes · Ingeniería Metalúrgica UTN FRC</title>
 <meta name="theme-color" content="#001484">
+<link rel="manifest" href="panel.webmanifest">
+<link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Panel IM">
 <link rel="icon" href="assets/img/logo-redondo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/admin.css">
+<link rel="stylesheet" href="assets/css/app.css">
 </head>
 <body>
 
@@ -48,6 +55,7 @@
       <span class="who" id="who"></span>
       <button class="btn btn-ghost inbox" id="bInbox" title="Mensajes sin leer">💬 <i id="inboxN">0</i></button>
       <button class="btn btn-ghost" id="bRefresh" title="Actualizar">↻</button>
+      <button class="im-inst chico" data-instalar hidden title="Instalar el panel como app">📲</button>
       <button class="btn btn-ghost adm" id="bCsv">⬇ Exportar</button>
       <button class="btn btn-ghost" id="bOut">Salir</button>
     </div>
@@ -249,5 +257,6 @@
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script src="assets/js/config.js"></script>
 <script src="assets/js/admin.js"></script>
+<script src="assets/js/app.js"></script>
 </body>
 </html>

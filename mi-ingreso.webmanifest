@@ -1,0 +1,23 @@
+{
+  "id": "./mi-ingreso.html",
+  "name": "Mi ingreso · Ingeniería Metalúrgica UTN FRC",
+  "short_name": "Mi ingreso",
+  "description": "Seguí tu ingreso a Ingeniería Metalúrgica: tus pasos, notas del cursillo, documentación y mensajes con el Departamento.",
+  "lang": "es-AR",
+  "start_url": "./mi-ingreso.html?app=1",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#001484",
+  "theme_color": "#001484",
+  "categories": ["education"],
+  "icons": [
+    { "src": "assets/img/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "assets/img/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "assets/img/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Mensajes", "url": "./mi-ingreso.html?app=1#mensajes", "icons": [{ "src": "assets/img/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Documentación", "url": "./mi-ingreso.html?app=1#documentacion", "icons": [{ "src": "assets/img/icon-192.png", "sizes": "192x192" }] }
+  ]
+}
