@@ -241,3 +241,8 @@ h2{font-weight:900;text-transform:uppercase;color:var(--navy);font-size:.95rem;l
   .tabs{order:5;width:100%;margin-left:0}
   .who{display:none}
 }
+/* Nombre clickeable: abre los datos que cargó el aspirante */
+button.p-name{background:none;border:0;padding:0;font:inherit;font-weight:800;color:var(--navy);cursor:pointer;text-align:left;text-decoration:underline;text-decoration-color:rgba(0,20,132,.25);text-underline-offset:3px}
+button.p-name:hover{color:var(--pink,#FF2566);text-decoration-color:currentColor}
+#dName{cursor:pointer}
+#dName::after{content:"👤 ver datos";display:inline-block;margin-left:10px;vertical-align:middle;font-size:.7rem;font-weight:800;letter-spacing:.02em;background:rgba(255,255,255,.18);color:inherit;padding:3px 8px;border-radius:999px}
