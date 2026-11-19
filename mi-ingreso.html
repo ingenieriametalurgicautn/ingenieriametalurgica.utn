@@ -30,25 +30,18 @@
     <h1>Mi ingreso</h1>
 
     <div id="step1">
-      <p>Seguí tus pasos, mirá tus notas, entregá la documentación y escribinos.</p>
+      <p>Seguí tus pasos, mirá tus notas, revisá qué documentación te falta y escribinos.</p>
       <label for="dato">Email con el que te preinscribiste</label>
       <input id="dato" type="email" inputmode="email" autocomplete="email" placeholder="tuemail@gmail.com">
-      <small class="alt">También podés escribir tu CUIL o DNI.</small>
-      <button class="btn btn-pink" id="bCod">Enviarme un código</button>
-    </div>
-
-    <div id="step2" hidden>
-      <p id="codMsg"></p>
-      <label for="codigo">Código de 6 números</label>
-      <input id="codigo" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="••••••" class="code">
+      <label for="dni">DNI</label>
+      <input id="dni" inputmode="numeric" autocomplete="off" maxlength="10" placeholder="Solo números, sin puntos">
       <button class="btn btn-pink" id="bEnt">Entrar</button>
-      <div class="links"><button class="lnk" id="bRe">Reenviar código</button><button class="lnk" id="bCam">Cambiar email</button></div>
     </div>
 
     <p class="err" id="lErr" role="alert"></p>
     <button class="im-inst grande" data-instalar hidden><span class="im-ic">📲</span><span><b>Descargar la app</b><small>Tené Mi ingreso en tu celular, como cualquier app</small></span></button>
     <ul class="sec">
-      <li>🔒 Sin contraseñas: cada vez te mandamos un código nuevo.</li>
+      <li>🔒 Sin contraseñas: entrás con tu email y tu DNI. Tus datos solo los ves vos.</li>
       <li>¿Todavía no te preinscribiste? <a href="index.html#preinscripcion">Hacelo acá</a>.</li>
     </ul>
     <a href="index.html" class="back">◂ Volver a la web</a>
@@ -99,7 +92,7 @@
     <section id="v-docs" hidden>
       <div class="card intro">
         <h3>Tu documentación</h3>
-        <p>Subí cada documento como <b>PDF o foto</b> (hasta <span id="maxMb">10</span> MB), o pegá un <b>link de Google Drive</b>. Te avisamos si hay que corregir algo.</p>
+        <p>La documentación se presenta <b>en papel</b> en el Departamento de Ingeniería Metalúrgica (UTN FRC). Cuando la entregues, la vas a ver tildada acá.</p>
       </div>
       <div id="docList" class="docs"></div>
     </section>
@@ -119,17 +112,6 @@
   </main>
 </div>
 
-<!-- Link de Drive -->
-<div class="modal" id="mLink"><div class="mbox">
-  <h3>Pegar link</h3>
-  <p id="mLinkDoc"></p>
-  <input id="linkTxt" placeholder="https://drive.google.com/…" inputmode="url">
-  <p class="tip">En Drive: tocá ⋮ → <b>Compartir</b> → <b>Acceso general: Cualquier persona con el enlace</b> → Copiar enlace.</p>
-  <p class="err" id="linkErr"></p>
-  <div class="macts"><button class="btn btn-ghost" id="linkNo">Cancelar</button><button class="btn btn-pink" id="linkOk">Guardar link</button></div>
-</div></div>
-
-<input type="file" id="file" accept="application/pdf,image/*" hidden>
 <div class="toast" id="toast"></div>
 
 <script src="assets/js/config.js"></script>

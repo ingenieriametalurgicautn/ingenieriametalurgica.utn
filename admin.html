@@ -91,8 +91,6 @@
         <select id="fDoc">
           <option value="">Documentación: todas</option>
           <option value="falta">Les falta documentación</option>
-          <option value="obs">Con documentos observados</option>
-          <option value="rev">Tienen documentos para revisar</option>
           <option value="ok">Documentación completa</option>
         </select>
         <label class="tog"><input type="checkbox" id="fPend"> Solo pendientes</label>
@@ -153,7 +151,7 @@
   <div class="d-head">
     <div>
       <p class="d-id" id="dId"></p>
-      <h2 id="dName"></h2>
+      <h2 id="dName" title="Ver los datos que cargó" role="button" tabindex="0"></h2>
       <p class="d-meta" id="dMeta"></p>
     </div>
     <button class="x" id="dClose" aria-label="Cerrar">✕</button>
