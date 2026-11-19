@@ -29,7 +29,7 @@
         { k: 'Req: Equivalencia', t: 'Ingreso aprobado por equivalencia', alt: true }],
     3: [{ k: 'Req: Documentación', t: 'Documentación entregada', req: true },
         { k: 'Req: Requisitos académicos', t: 'Requisitos académicos (título secundario)', req: true },
-        { k: 'Req: Inscripción Guaraní', t: 'Inscripto al cursado', req: true }]
+        { k: 'Req: Inscripción Guaraní', t: 'Inscripto al cursado en SAAP', req: true }]
   };
   const DATOS = ['Apellidos', 'Nombres', 'Email', 'Teléfono', 'CUIL', 'Fecha de nacimiento', 'Estado civil', 'Nacionalidad', 'País',
     'Dirección', 'Barrio', 'Localidad', 'Provincia', 'Código postal', 'Colegio', 'Secundario técnico', 'Egreso', 'Cómo nos conoció', 'Consulta'];
@@ -52,7 +52,7 @@
     if (!cursillo(r)) f.push('cursillo aprobado');
     if (!on(r['Req: Documentación'])) f.push('documentación');
     if (!on(r['Req: Requisitos académicos'])) f.push('requisitos académicos');
-    if (!on(r['Req: Inscripción Guaraní'])) f.push('inscripción al cursado');
+    if (!on(r['Req: Inscripción Guaraní'])) f.push('inscripción al cursado en SAAP');
     return f;
   }
   const progreso = r => 6 - faltantes(r).length;
@@ -161,15 +161,22 @@
     const pct = (a, b) => b ? Math.round(a / b * 100) + '%' : '—';
     const [y, m, dd] = CIERRE.split('-').map(Number);
     const faltan = Math.ceil((new Date(y, m - 1, dd, 23, 59) - new Date()) / 86400000);
+    const pre = FILAS.filter(r => r['Tipo'] === 'Preinscripción').length;
     const cards = [
-      ['', 'Todos', tot, 'var(--navy)', `${FILAS.filter(r => r['Tipo'] === 'Preinscripción').length} preinscripciones · ${faltan > 0 ? faltan + ' días al cierre' : 'inscripción cerrada'}`],
-      ['Consultante', 'Consultantes', n('Consultante'), COLOR.Consultante, `${FILAS.filter(r => r['Estado'] === 'Consultante' && r._pend && !r._pend.soft).length} con seguimiento vencido`],
-      ['Ingresante', 'Ingresantes', n('Ingresante'), COLOR.Ingresante, `${pct(ing, tot)} del total llegó acá`],
+      ['PRE', 'Preinscriptos', pre, 'var(--navy)', `${faltan > 0 ? faltan + ' días al cierre' : 'Inscripción cerrada'} · ${tot} registros en total`],
+      ['Ingresante', 'Ingresantes', n('Ingresante'), COLOR.Ingresante, `${pct(n('Ingresante'), pre)} de los preinscriptos`],
       ['Estudiante', 'Estudiantes', n('Estudiante'), COLOR.Estudiante, `${pct(n('Estudiante'), ing)} de los ingresantes`],
       ['Baja', 'Bajas', n('Baja'), COLOR.Baja, `${FILAS.filter(r => r['Respuesta del aspirante (baja)']).length} respondieron el motivo`]
     ];
-    $('#stages').innerHTML = cards.map(([e, t, v, c, s], i) => `<button class="stg ${filtroEstado === e ? 'on' : ''}" data-e="${e}" style="--c:${c}"><span>${t}</span><b>${v}</b><small>${esc(s)}</small>${i > 0 && i < 3 ? '<i class="arrow">›</i>' : ''}</button>`).join('');
-    $$('#stages .stg').forEach(b => b.onclick = () => { filtroEstado = b.dataset.e; renderStages(); renderTable(); });
+    const activo = e => e === 'PRE' ? (!filtroEstado && $('#fTipo').value === 'Preinscripción') : filtroEstado === e;
+    $('#stages').innerHTML = cards.map(([e, t, v, c, s], i) => `<button class="stg ${activo(e) ? 'on' : ''}" data-e="${e}" style="--c:${c}"><span>${t}</span><b>${v}</b><small>${esc(s)}</small>${i < 2 ? '<i class="arrow">›</i>' : ''}</button>`).join('');
+    $$('#stages .stg').forEach(b => b.onclick = () => {
+      const e = b.dataset.e;
+      if (activo(e)) { filtroEstado = ''; if (e === 'PRE') $('#fTipo').value = ''; }
+      else if (e === 'PRE') { filtroEstado = ''; $('#fTipo').value = 'Preinscripción'; }
+      else { filtroEstado = e; }
+      renderStages(); renderTable();
+    });
     $('#ruleTxt').innerHTML = `Un aspirante aparece como <b>pendiente</b> cuando:<br>• la <b>fecha de próximo contacto</b> que cargaste ya llegó; o<br>• es <b>nuevo</b> y nadie lo contactó en <b>${CFG.DIAS_NUEVO_SIN_CONTACTO} días</b>; o<br>• está en proceso y pasaron <b>${CFG.DIAS_SIN_SEGUIMIENTO} días sin contacto</b>.<br>Estudiantes y bajas no generan pendientes. Los días se cambian en <i>config.js</i>.`;
   }
   function renderAgenda() {
@@ -184,7 +191,7 @@
     const q = $('#q').value.trim().toLowerCase(), tipo = $('#fTipo').value, sit = $('#fSit').value, pend = $('#fPend').checked;
     const fd = $('#fDoc').value, fm = $('#fMsg').checked;
     const docOk = r => { const x = r._doc || {}; if (!fd) return true; if (r['Estado'] === 'Baja') return false;
-      if (fd === 'falta') return (x.falta || []).length > 0; if (fd === 'obs') return x.obs > 0; if (fd === 'rev') return x.rev > 0; return x.oblig > 0 && x.apr === x.oblig; };
+      if (fd === 'falta') return x.oblig > 0 && x.apr < x.oblig; return x.oblig > 0 && x.apr === x.oblig; };
     return FILAS.filter(r => (!filtroEstado || r['Estado'] === filtroEstado) && (!tipo || r['Tipo'] === tipo) && (!sit || r['Situación'] === sit) && (!pend || r._pend) &&
       docOk(r) && (!fm || r._msg > 0) &&
       (!q || ['Apellidos', 'Nombres', 'DNI', 'Email', 'Teléfono', 'Colegio', 'Localidad', 'ID', 'Legajo'].some(k => String(r[k] || '').toLowerCase().includes(q))))
@@ -201,7 +208,7 @@
     $('#tbody').innerHTML = rows.map(r => {
       const p = progreso(r), w = wa(r['Teléfono']), pe = r._pend;
       return `<tr data-id="${esc(r.ID)}">
-        <td><div class="p-name">${esc(nombre(r))}</div><div class="p-sub">${r['DNI'] ? 'DNI ' + esc(r['DNI']) + ' · ' : ''}${esc(r['Localidad'] || '')}</div><span class="tipo">${esc(r['Tipo'])}</span>${r._msg ? `<span class="chip-msg">💬 ${r._msg}</span>` : ''}</td>
+        <td><button class="p-name" data-datos="${esc(r.ID)}" title="Ver los datos que cargó">${esc(nombre(r))}</button><div class="p-sub">${r['DNI'] ? 'DNI ' + esc(r['DNI']) + ' · ' : ''}${esc(r['Localidad'] || '')}</div><span class="tipo">${esc(r['Tipo'])}</span>${r._msg ? `<span class="chip-msg">💬 ${r._msg}</span>` : ''}</td>
         <td>${w ? `<a class="ic" href="https://wa.me/${w}" target="_blank" rel="noopener" title="WhatsApp">💬</a>` : ''}${r['Email'] && !/•/.test(r['Email']) ? `<a class="ic" href="${esc(gmail(r['Email'], 'Ingeniería Metalúrgica UTN FRC'))}" target="_blank" rel="noopener" title="Email (Gmail de Metalúrgica)">✉</a>` : ''}<div class="p-sub">${esc(r['Teléfono'] || '')}</div></td>
         <td><span class="badge b-${esc(r['Estado'])}">${esc(r['Estado'])}</span></td>
         <td>${esc(r['Situación'] || '')}${r['Estado'] === 'Baja' && r['Motivo de baja'] ? `<div class="p-sub">${esc(r['Motivo de baja'])}</div>` : ''}</td>
@@ -209,12 +216,12 @@
         <td class="${pe ? (pe.soft ? 'ok-t' : pe.cls === 'today' ? 'today-t' : 'late-t') : 'ok-t'}">${pe ? (pe.soft ? '' : '⚠ ') + esc(pe.why) : d10(r['Próximo contacto']) ? 'Próximo: ' + fmt(r['Próximo contacto']) : '—'}</td>
         <td>${fmt(r['Fecha'])}</td></tr>`;
     }).join('');
-    $$('#tbody tr').forEach(tr => tr.addEventListener('click', e => { if (!e.target.closest('a')) openDrawer(tr.dataset.id); }));
+    $$('#tbody tr').forEach(tr => tr.addEventListener('click', e => { if (e.target.closest('a')) return; openDrawer(tr.dataset.id, !!e.target.closest('[data-datos]')); }));
   }
   function docChip(x) {
     if (!x || !x.oblig) return '';
-    const cls = x.obs ? 'obs' : x.apr === x.oblig ? 'ok' : x.rev ? 'rev' : 'falta';
-    const t = x.obs ? `${x.obs} observado${x.obs > 1 ? 's' : ''}` : x.apr === x.oblig ? 'Docs ✓' : x.rev ? `${x.rev} para revisar` : `Docs ${x.ent}/${x.oblig}`;
+    const cls = x.apr === x.oblig ? 'ok' : 'falta';
+    const t = x.apr === x.oblig ? 'Docs ✓' : `Docs ${x.apr}/${x.oblig}`;
     return `<span class="dchip d-${cls}">📄 ${t}</span>`;
   }
   ['#q', '#fTipo', '#fSit', '#fPend', '#fDoc', '#fMsg'].forEach(s => $(s).addEventListener('input', renderTable));
@@ -237,7 +244,7 @@
   };
 
   /* ---------- Ficha ---------- */
-  function openDrawer(id) {
+  function openDrawer(id, verDatos) {
     const r = FILAS.find(x => x.ID === id); if (!r) return;
     actual = id; draft = {}; FICHA = null;
     fillDrawer(r);
@@ -247,33 +254,35 @@
     $('#scrim').hidden = false; $('#drawer').classList.add('on'); $('#drawer').setAttribute('aria-hidden', 'false');
     $('#dBody').scrollTop = 0;
     HILO = null; $('#dDocBox').hidden = $('#dMsgBox').hidden = !can('editor');
-    $('#dMsgBox').open = r._msg > 0; $('#dDocBox').open = !!(r._doc && r._doc.rev);
+    $('#dMsgBox').open = r._msg > 0; $('#dDocBox').open = false;
     $('#stbDoc').innerHTML = '<p class="hint">Cargando…</p>'; $('#mThread').innerHTML = '<p class="hint">Cargando…</p>';
-    $('#stDoc').textContent = r._doc && r._doc.oblig ? `${r._doc.apr}/${r._doc.oblig} aprobados` : ''; $('#stMsg').textContent = r._msg ? r._msg + ' sin leer' : '';
+    $('#stDoc').textContent = r._doc && r._doc.oblig ? `${r._doc.apr}/${r._doc.oblig} presentados` : ''; $('#stMsg').textContent = r._msg ? r._msg + ' sin leer' : '';
     if (can('editor')) loadHilo(id);
+    if (verDatos) verDatosPersonales();
   }
+  // Al tocar el nombre: abre "Datos personales" con lo que cargó en el formulario
+  function verDatosPersonales() {
+    const box = $('#dDatosBox');
+    if (!can('editor')) { box.open = true; return; }
+    box.open = true;
+    setTimeout(() => box.scrollIntoView({ behavior: 'smooth', block: 'start' }), 120);
+  }
+  $('#dName').onclick = verDatosPersonales;
 
   /* ---------- Documentación y mensajes de la ficha ---------- */
   async function loadHilo(id) {
     try { const d = await call({ action: 'hilo', id }); if (actual !== id) return; HILO = d; renderHilo(); const r = base(); if (r._msg) { r._msg = 0; apply({ filas: FILAS, log: LOG }); } }
     catch (e) { $('#stbDoc').innerHTML = `<p class="hint">No se pudo cargar: ${esc(e.message)}</p>`; }
   }
-  const DOC_EST = { '': ['Falta entregar', 'falta'], 'Entregado': ['Para revisar', 'rev'], 'Aprobado': ['Aprobado', 'ok'], 'Observado': ['Observado', 'obs'] };
   function renderHilo() {
     if (!HILO) return;
     const docs = HILO.docs || [], ob = docs.filter(x => x.oblig);
-    $('#stDoc').textContent = ob.length ? `${ob.filter(x => x.estado === 'Aprobado').length}/${ob.length} aprobados` : '';
+    $('#stDoc').textContent = ob.length ? `${ob.filter(x => x.estado === 'Aprobado').length}/${ob.length} presentados` : '';
     $('#stDoc').classList.toggle('done', ob.length > 0 && ob.every(x => x.estado === 'Aprobado'));
-    $('#stbDoc').innerHTML = docs.map((x, i) => {
-      const [t, c] = DOC_EST[x.estado] || DOC_EST[''], url = x.archivo || x.link;
-      return `<div class="dv d-${c}"><div class="dv-h"><div><b>${esc(x.doc)}</b>${x.oblig ? '' : ' <span class="opt">opcional</span>'}<small>${x.estado ? 'Entregado ' + fmt(x.fecha) + (x.link ? ' · link' : x.nombre ? ' · ' + esc(x.nombre) : '') : 'Todavía no lo entregó'}</small></div><span class="dchip d-${c}">${t}</span></div>
-        ${x.obs ? `<p class="dv-obs">⚠ ${esc(x.obs)}</p>` : ''}
-        ${url ? `<div class="dv-a"><a class="btn btn-ghost-dark" href="${esc(url)}" target="_blank" rel="noopener">Abrir ${x.archivo ? 'archivo' : 'link'} ↗</a>${x.estado !== 'Aprobado' ? `<button class="btn btn-ok" data-ap="${i}">✓ Aprobar</button>` : ''}<button class="btn btn-ghost-dark" data-ob="${i}">Observar…</button></div>
-        <div class="dv-f" id="obf${i}" hidden><textarea rows="2" placeholder="¿Qué tiene que corregir? Ej.: la foto del DNI está borrosa"></textarea><div class="msend"><label class="tog"><input type="checkbox" checked> Avisarle por email</label><button class="btn btn-navy" data-obok="${i}">Enviar observación</button></div></div>` : ''}</div>`;
-    }).join('') + '<p class="hint">Los archivos se guardan en la carpeta "Documentación aspirantes" de Drive. Cuando todos los obligatorios están aprobados se marca sola la etapa "Documentación entregada".</p>';
-    $$('#stbDoc [data-ap]').forEach(b => b.onclick = () => revisar(docs[b.dataset.ap].doc, 'Aprobado'));
-    $$('#stbDoc [data-ob]').forEach(b => b.onclick = () => { const f = $('#obf' + b.dataset.ob); f.hidden = !f.hidden; if (!f.hidden) $('textarea', f).focus(); });
-    $$('#stbDoc [data-obok]').forEach(b => b.onclick = () => { const f = $('#obf' + b.dataset.obok); revisar(docs[b.dataset.obok].doc, 'Observado', $('textarea', f).value.trim(), $('input', f).checked); });
+    // La documentación se presenta en papel en la facultad: acá solo se tilda lo que entregó
+    $('#stbDoc').innerHTML = docs.map((x, i) => `<label class="req ${x.estado === 'Aprobado' ? 'ok' : ''}"><input type="checkbox" data-doc="${i}" ${x.estado === 'Aprobado' ? 'checked' : ''} ${can('editor') ? '' : 'disabled'}><span>${esc(x.doc)}${x.estado === 'Aprobado' && x.fecha ? ` <small class="opt">presentado ${fmt(x.fecha)}</small>` : ''}</span>${x.oblig ? '' : '<span class="opt">Opcional</span>'}</label>`).join('')
+      + '<p class="hint">Tildá cada documento cuando lo presente en papel en el Departamento. Con todos los obligatorios tildados se marca sola la etapa "Documentación entregada".</p>';
+    $$('#stbDoc [data-doc]').forEach(c => c.onchange = () => revisar(docs[c.dataset.doc].doc, c.checked ? 'Aprobado' : 'Pendiente'));
     const ms = HILO.mensajes || [];
     $('#stMsg').textContent = ms.length ? ms.length + ' mensaje' + (ms.length > 1 ? 's' : '') : '';
     $('#mThread').innerHTML = ms.length ? ms.map(m => `<div class="bub ${m.de === 'oficina' ? 'me' : 'them'}"><p>${esc(m.texto)}</p><small>${m.de === 'oficina' ? esc((m.autor || '').split('@')[0]) + (m.canal && m.canal !== 'portal' ? ' · ' + esc(m.canal) : '') : 'Aspirante'} · ${fmt(m.fecha)} ${String(m.fecha).slice(11, 16)}</small></div>`).join('')
@@ -281,12 +290,11 @@
     const th = $('#mThread'); th.scrollTop = th.scrollHeight;
   }
   async function revisar(doc, estado, obs, avisar) {
-    if (estado === 'Observado' && !obs) return toast('Escribí qué tiene que corregir');
     try {
       const d = await call({ action: 'docReview', id: actual, doc, estado, obs: obs || '', avisar: !!avisar });
       HILO = d.hilo; apply(d); renderHilo();
-      toast(estado === 'Aprobado' ? (d.completo ? '✓ Aprobado · ¡documentación completa!' : '✓ Documento aprobado') : '✓ Observación enviada');
-    } catch (e) { toast('No se pudo guardar: ' + e.message, 4000); }
+      toast(estado === 'Aprobado' ? (d.completo ? '✓ ¡Documentación completa!' : '✓ Documento marcado como presentado') : '✓ Documento desmarcado');
+    } catch (e) { toast('No se pudo guardar: ' + e.message, 4000); renderHilo(); }
   }
   $('#mSend').onclick = async () => {
     const texto = $('#mTxt').value.trim(); if (!texto) return toast('Escribí un mensaje');
@@ -343,7 +351,7 @@
 
   function renderPipe() {
     const r = Object.assign({}, base(), draft), falt = faltantes(r);
-    $('#dPipe').innerHTML = ESTADOS.map(e => `<button data-e="${e}" class="${V('Estado') === e ? 'on' : ''} ${e === 'Estudiante' && falt.length ? 'lock' : ''}" ${can('editor') ? '' : 'disabled'}>${e}</button>`).join('');
+    $('#dPipe').innerHTML = ESTADOS.filter(e => e !== 'Consultante' || V('Estado') === 'Consultante').map(e => `<button data-e="${e}" class="${V('Estado') === e ? 'on' : ''} ${e === 'Estudiante' && falt.length ? 'lock' : ''}" ${can('editor') ? '' : 'disabled'}>${e}</button>`).join('');
     $('#dPipeHint').innerHTML = V('Estado') === 'Estudiante' ? '✓ Registrado/a como estudiante.' : V('Estado') === 'Baja' ? 'Dado/a de baja. Podés reactivarlo/a eligiendo otra condición.'
       : falt.length ? `Para pasar a <b>Estudiante</b> falta: ${esc(falt.join(', '))}.` : '✓ Cumple todos los requisitos: ya puede pasar a <b>Estudiante</b>.';
     $$('#dPipe button').forEach(b => b.onclick = () => {
@@ -461,13 +469,11 @@
   const fechaCierre = () => { const [y, m, d] = CIERRE.split('-'); return `${+d}/${+m}`; };
   const PLANTILLAS = () => [
     { k: 'falta', t: 'Falta documentación', as: 'Te falta entregar documentación · Ingeniería Metalúrgica',
-      tx: `¡Hola {nombre}! 👋 Te escribimos del Departamento de Ingeniería Metalúrgica (UTN FRC).\nPara completar tu ingreso todavía nos falta: {documentos}.\nLo podés subir en 2 minutos desde Mi ingreso (entrás con tu email): ${PORTAL}\nCualquier duda, respondé este mensaje.` },
-    { k: 'obs', t: 'Documento observado', as: 'Tenés un documento para corregir · Ingeniería Metalúrgica',
-      tx: `¡Hola {nombre}! Revisamos tu documentación y hay algo para corregir. Entrá a Mi ingreso, en la pestaña Documentación vas a ver qué falta: ${PORTAL}` },
+      tx: `¡Hola {nombre}! 👋 Te escribimos del Departamento de Ingeniería Metalúrgica (UTN FRC).\nPara completar tu ingreso todavía nos falta: {documentos}.\nTraela en papel al Departamento de Ingeniería Metalúrgica. En Mi ingreso podés ver qué te falta: ${PORTAL}\nCualquier duda, respondé este mensaje.` },
     { k: 'cierre', t: 'Recordatorio de cierre', as: 'Las inscripciones cierran pronto · Ingeniería Metalúrgica',
       tx: `¡Hola {nombre}! Te recordamos que las inscripciones cierran el ${fechaCierre()}. Para completar tu ingreso te falta: {pasos}.\nSeguí tu proceso en Mi ingreso: ${PORTAL}` },
     { k: 'portal', t: 'Invitación a Mi ingreso', as: 'Seguí tu ingreso online · Ingeniería Metalúrgica',
-      tx: `¡Hola {nombre}! Ya podés seguir tu ingreso a Ingeniería Metalúrgica online: ver tus pasos y notas, subir la documentación y escribirnos.\nEntrá con tu email acá: ${PORTAL}` },
+      tx: `¡Hola {nombre}! Ya podés seguir tu ingreso a Ingeniería Metalúrgica online: ver tus pasos y notas, qué documentación te falta presentar y escribirnos.\nEntrá con tu email y tu DNI acá: ${PORTAL}` },
     { k: 'libre', t: 'Mensaje libre', as: 'Ingeniería Metalúrgica UTN FRC', tx: '¡Hola {nombre}! ' }
   ];
   let DIF = [];
@@ -485,7 +491,7 @@
     $('#difDest').textContent = 'Ver destinatarios (' + DIF.length + ')';
     $('#difList').textContent = DIF.map(nombre).join(' · ');
     $('#difTpl').innerHTML = tp.map(x => `<option value="${x.k}">${esc(x.t)}</option>`).join('');
-    const def = $('#fDoc').value === 'obs' ? 'obs' : $('#fDoc').value === 'falta' ? 'falta' : 'libre';
+    const def = $('#fDoc').value === 'falta' ? 'falta' : 'libre';
     $('#difTpl').value = def; usarTpl();
     const cupo = CUOTA == null ? null : Math.max(0, CUOTA - 15);
     $('#cuotaTxt').textContent = cupo == null ? '' : `· hoy podés enviar ${cupo}${cupo < DIF.length ? ' (el resto, mañana)' : ''}`;

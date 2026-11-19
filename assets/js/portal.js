@@ -13,13 +13,8 @@
     get() { try { const s = JSON.parse(localStorage.getItem(KEY)); return s && s.exp > Date.now() ? s : null; } catch (e) { return null; } },
     set(v) { try { v ? localStorage.setItem(KEY, JSON.stringify(v)) : localStorage.removeItem(KEY); } catch (e) {} }
   };
-  let SES = ses.get(), D = null, DATO = '', docActual = '', vista = 'camino';
-  /* Código pedido y todavía sin usar: se recuerda 10 min por si el celular cierra la app al ir a buscar el email */
-  const PEND = 'im_portal_pend';
-  const pend = {
-    get() { try { const p = JSON.parse(localStorage.getItem(PEND)); return p && p.exp > Date.now() ? p : null; } catch (e) { return null; } },
-    set(v) { try { v ? localStorage.setItem(PEND, JSON.stringify(v)) : localStorage.removeItem(PEND); } catch (e) {} }
-  };
+  let SES = ses.get(), D = null, vista = 'camino';
+
 
   function toast(m, ms) { const t = $('#toast'); t.textContent = m; t.classList.add('on'); clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('on'), ms || 3000); }
   const err = (m, el) => { (el || $('#lErr')).textContent = m || ''; };
@@ -32,43 +27,30 @@
     return d;
   }
 
-  /* ---------- Ingreso con código ---------- */
-  async function pedirCodigo() {
-    DATO = $('#dato').value.trim();
-    if (DATO.length < 6) return err('Escribí el email con el que te preinscribiste.');
-    $('#bCod').disabled = true; err('');
-    try {
-      const d = await imApi({ action: 'pCodigo', dato: DATO });
-      if (!d.ok) throw new Error(d.error);
-      $('#codMsg').textContent = d.msg; $('#step1').hidden = true; $('#step2').hidden = false;
-      pend.set({ dato: DATO, msg: d.msg, exp: Date.now() + 10 * 60000 });
-      $('#codigo').value = ''; setTimeout(() => $('#codigo').focus(), 50);
-    } catch (e) { err(e.message || 'No se pudo enviar el código.'); }
-    finally { $('#bCod').disabled = false; }
-  }
+  /* ---------- Ingreso con email + DNI (sin código) ---------- */
   async function entrar() {
-    const codigo = $('#codigo').value.replace(/\D/g, '');
-    if (codigo.length !== 6) return err('El código tiene 6 números.');
+    const email = $('#dato').value.trim(), dni = $('#dni').value.replace(/\D/g, '');
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return err('Escribí el email con el que te preinscribiste.');
+    if (dni.length < 6) return err('Escribí tu DNI (solo números).');
     $('#bEnt').disabled = true; err('');
     try {
-      const d = await imApi({ action: 'pEntrar', dato: DATO, codigo });
+      const d = await imApi({ action: 'pEntrarDni', dato: email, dni });
       if (!d.ok) throw new Error(d.error);
-      SES = { token: d.token, h: d.horas, exp: Date.now() + d.horas * 3600000 }; ses.set(SES); pend.set(null);
+      SES = { token: d.token, h: d.horas, exp: Date.now() + d.horas * 3600000 }; ses.set(SES);
+      try { localStorage.setItem('im_portal_email', email); } catch (e) {}
       mostrar(d);
     } catch (e) { err(e.message); }
     finally { $('#bEnt').disabled = false; }
   }
-  $('#bCod').onclick = pedirCodigo;
-  $('#dato').onkeydown = e => { if (e.key === 'Enter') pedirCodigo(); };
   $('#bEnt').onclick = entrar;
-  $('#codigo').oninput = e => { e.target.value = e.target.value.replace(/\D/g, '').slice(0, 6); if (e.target.value.length === 6) entrar(); };
-  $('#bRe').onclick = () => { $('#step2').hidden = true; $('#step1').hidden = false; pedirCodigo(); };
-  $('#bCam').onclick = () => { pend.set(null); $('#step2').hidden = true; $('#step1').hidden = false; err(''); $('#dato').focus(); };
+  $('#dato').onkeydown = e => { if (e.key === 'Enter') $('#dni').focus(); };
+  $('#dni').onkeydown = e => { if (e.key === 'Enter') entrar(); };
+  try { const em = localStorage.getItem('im_portal_email'); if (em) $('#dato').value = em; } catch (e) {}
 
   function salir(msg) {
     if (SES) imApi({ action: 'pSalir', token: SES.token }).catch(() => {});
     SES = null; D = null; ses.set(null);
-    $('#app').hidden = true; $('#login').hidden = false; $('#step2').hidden = true; $('#step1').hidden = false;
+    $('#app').hidden = true; $('#login').hidden = false; $('#dni').value = '';
     err(msg || '');
   }
   $('#bOut').onclick = () => salir('Cerraste la sesión.');
@@ -87,7 +69,6 @@
     D = d;
     $('#login').hidden = true; $('#app').hidden = false;
     $('#hiName').textContent = (d.yo['Nombres'] || '') + ' ' + (d.yo['Apellidos'] || '');
-    $('#maxMb').textContent = d.maxMb || 10;
     pintarCamino(); pintarDocs(); pintarMsg();
     if (vista !== 'camino') ver(vista);
   }
@@ -101,9 +82,9 @@
       { t: 'Preinscripción en SysAcad', ok: on(y['Req: Preinscripción SysAcad']), d: y['Legajo'] ? 'Tu legajo: ' + y['Legajo'] : 'Te guiamos para completar la preinscripción en el sistema de la facultad.' },
       { t: 'Pre-cursillo de Metalúrgica', ok: on(y['Req: Pre-cursillo']), d: 'Opcional, ¡pero suma muchísimo!', opt: true },
       { t: 'Cursillo de ingreso', ok: cursillo, d: on(y['Req: Equivalencia']) ? 'Aprobado por equivalencia.' : `Matemática, Física e Introducción a la Vida Universitaria (${mods}/3 aprobados).` },
-      { t: 'Documentación', ok: on(y['Req: Documentación']), d: 'Subila desde la pestaña Documentación.', go: 'docs' },
+      { t: 'Documentación', ok: on(y['Req: Documentación']), d: 'Presentala en papel en el Departamento. En la pestaña Documentación ves qué te falta.', go: 'docs' },
       { t: 'Título secundario', ok: on(y['Req: Requisitos académicos']), d: 'Requisito académico para el cursado.' },
-      { t: 'Inscripción al cursado', ok: on(y['Req: Inscripción Guaraní']), d: 'Último paso para empezar a cursar.' },
+      { t: 'Inscripción al cursado en SAAP', ok: on(y['Req: Inscripción Guaraní']), d: 'Último paso para empezar a cursar.' },
       { t: '¡Estudiante de Ingeniería Metalúrgica!', ok: y['Estado'] === 'Estudiante', d: 'Te esperamos en clases 🎉', fin: true }
     ];
   }
@@ -131,66 +112,19 @@
     $('#notasHint').textContent = on(y['Req: Equivalencia']) ? '✓ Tu ingreso fue aprobado por equivalencia.' : 'Las notas las carga el Departamento a medida que rendís.';
   }
 
-  const ESTADOS_DOC = { '': ['Falta entregar', 'falta'], 'Entregado': ['En revisión', 'rev'], 'Aprobado': ['Aprobado ✓', 'apr'], 'Observado': ['Hay que corregirlo', 'obs'] };
+  /* Documentación: se presenta en papel en la facultad; acá solo se ve qué está tildado */
   function pintarDocs() {
     const ds = D.docs || [];
-    const pend = ds.filter(x => x.oblig && (!x.estado || x.estado === 'Observado')).length;
+    const pend = ds.filter(x => x.oblig && x.estado !== 'Aprobado').length;
     $('#tDocs').textContent = pend || ''; $('#tDocs').hidden = !pend;
     $('#docList').innerHTML = ds.map(x => {
-      const [lbl, cls] = ESTADOS_DOC[x.estado] || ESTADOS_DOC[''];
-      const verLink = x.archivo || x.link;
-      return `<div class="doc k-${cls}">
-        <div class="doc-h"><div><b>${esc(x.doc)}</b>${x.oblig ? '' : ' <em>opcional</em>'}<small>${esc(x.desc)}</small></div><span class="st st-${cls}">${lbl}</span></div>
-        ${x.estado === 'Observado' && x.obs ? `<p class="obs">⚠ ${esc(x.obs)}</p>` : ''}
-        ${x.estado ? `<p class="meta">Entregado el ${fmt(x.fecha)}${x.nombre ? ' · ' + esc(x.nombre) : ''}${x.link ? ` · <a href="${esc(x.link)}" target="_blank" rel="noopener">ver link</a>` : ''}</p>` : ''}
-        ${x.estado !== 'Aprobado' ? `<div class="doc-a"><button class="btn btn-navy" data-up="${esc(x.doc)}">${x.estado ? '↻ Subir de nuevo' : '⬆ Subir archivo'}</button><button class="btn btn-ghost" data-ln="${esc(x.doc)}">🔗 Pegar link</button></div>` : ''}
-        <div class="prog" hidden><div></div><span>Subiendo…</span></div>
+      const ok = x.estado === 'Aprobado';
+      return `<div class="doc ${ok ? 'k-apr' : 'k-falta'}">
+        <div class="doc-h"><div><b>${esc(x.doc)}</b>${x.oblig ? '' : ' <em>opcional</em>'}<small>${esc(x.desc || '')}</small></div><span class="st ${ok ? 'st-apr' : 'st-falta'}">${ok ? 'Presentado ✓' : 'Falta presentar'}</span></div>
+        ${ok && x.fecha ? `<p class="meta">Lo recibimos el ${fmt(x.fecha)}</p>` : ''}
       </div>`;
-    }).join('') || '<div class="card"><p>No hay documentos para entregar por ahora.</p></div>';
-    $$('[data-up]').forEach(b => b.onclick = () => { docActual = b.dataset.up; $('#file').value = ''; $('#file').click(); });
-    $$('[data-ln]').forEach(b => b.onclick = () => { docActual = b.dataset.ln; $('#mLinkDoc').textContent = docActual; $('#linkTxt').value = ''; err('', $('#linkErr')); $('#mLink').classList.add('on'); setTimeout(() => $('#linkTxt').focus(), 50); });
+    }).join('') || '<div class="card"><p>No hay documentos para presentar por ahora.</p></div>';
   }
-
-  /* Subida: las fotos grandes se achican en el celular antes de enviarlas */
-  function leerB64(blob) { return new Promise((ok, no) => { const r = new FileReader(); r.onload = () => ok(String(r.result).split(',')[1]); r.onerror = no; r.readAsDataURL(blob); }); }
-  function achicar(file) {
-    return new Promise(res => {
-      if (!/^image\/(jpeg|png|webp)$/.test(file.type) || file.size < 1.2 * 1048576) return res(file);
-      const img = new Image(), url = URL.createObjectURL(file);
-      img.onload = () => {
-        const k = Math.min(1, 2000 / Math.max(img.width, img.height)), c = document.createElement('canvas');
-        c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
-        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height); URL.revokeObjectURL(url);
-        c.toBlob(b => res(b && b.size < file.size ? new File([b], file.name.replace(/\.\w+$/, '') + '.jpg', { type: 'image/jpeg' }) : file), 'image/jpeg', 0.85);
-      };
-      img.onerror = () => { URL.revokeObjectURL(url); res(file); };
-      img.src = url;
-    });
-  }
-  $('#file').onchange = async e => {
-    let f = e.target.files[0]; if (!f) return;
-    const card = $(`[data-up="${CSS.escape(docActual)}"]`).closest('.doc'), prog = $('.prog', card);
-    const max = (D.maxMb || 10) * 1048576;
-    const tipo = f.type || (/\.heic$/i.test(f.name) ? 'image/heic' : /\.pdf$/i.test(f.name) ? 'application/pdf' : '');
-    if (!/^(application\/pdf|image\/(jpeg|png|webp|heic|heif))$/.test(tipo)) return toast('Subí un PDF o una foto (JPG o PNG).', 4000);
-    prog.hidden = false; $$('button', card).forEach(b => b.disabled = true);
-    try {
-      f = await achicar(f);
-      if (f.size > max) throw new Error(`El archivo pesa ${(f.size / 1048576).toFixed(1)} MB. El máximo es ${D.maxMb} MB.`);
-      const data = await leerB64(f);
-      const d = await call({ action: 'pSubir', doc: docActual, mime: f.type || tipo, nombre: f.name, data }, 120000);
-      D = Object.assign(D, d); pintarDocs(); pintarCamino(); toast('✓ ¡Documento recibido! Lo vamos a revisar.');
-    } catch (x) { prog.hidden = true; $$('button', card).forEach(b => b.disabled = false); toast(x.message || 'No se pudo subir. Probá de nuevo.', 5000); }
-  };
-  $('#linkNo').onclick = () => $('#mLink').classList.remove('on');
-  $('#linkOk').onclick = async () => {
-    const link = $('#linkTxt').value.trim();
-    if (!/^https:\/\//.test(link)) return err('Pegá el link completo (empieza con https://).', $('#linkErr'));
-    $('#linkOk').disabled = true;
-    try { const d = await call({ action: 'pLink', doc: docActual, link }); D = Object.assign(D, d); $('#mLink').classList.remove('on'); pintarDocs(); toast('✓ Link guardado. Revisá que se pueda abrir sin pedir permiso.', 4500); }
-    catch (x) { err(x.message, $('#linkErr')); }
-    finally { $('#linkOk').disabled = false; }
-  };
 
   /* ---------- Mensajes ---------- */
   function pintarMsg() {
@@ -221,8 +155,6 @@
   /* ---------- Inicio ---------- */
   if (location.hash === '#mensajes') vista = 'msg';
   if (location.hash === '#documentacion') vista = 'docs';
-  const P = !SES && pend.get();
-  if (P) { DATO = P.dato; $('#dato').value = P.dato; $('#codMsg').textContent = P.msg; $('#step1').hidden = true; $('#step2').hidden = false; }
   if (SES) {
     $('#login').hidden = true;
     call({ action: 'pYo' }).then(mostrar).catch(() => { $('#login').hidden = false; });
