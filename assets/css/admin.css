@@ -246,3 +246,15 @@ button.p-name{background:none;border:0;padding:0;font:inherit;font-weight:800;co
 button.p-name:hover{color:var(--pink,#FF2566);text-decoration-color:currentColor}
 #dName{cursor:pointer}
 #dName::after{content:"👤 ver datos";display:inline-block;margin-left:10px;vertical-align:middle;font-size:.7rem;font-weight:800;letter-spacing:.02em;background:rgba(255,255,255,.18);color:inherit;padding:3px 8px;border-radius:999px}
+
+/* Botón flotante de sugerencias: llama la atención sin tapar el trabajo */
+.sug-fab{position:fixed;right:18px;bottom:18px;z-index:70;display:flex;align-items:center;gap:8px;border:0;cursor:pointer;
+  background:linear-gradient(135deg,var(--pink),#FF8A00);color:#fff;font:800 .92rem Montserrat,sans-serif;padding:13px 20px;border-radius:999px;
+  box-shadow:0 10px 28px rgba(200,21,77,.45);animation:sugPulse 2.2s ease-in-out infinite}
+.sug-fab:hover{transform:translateY(-2px);animation-play-state:paused}
+.sug-fab[hidden]{display:none}
+@keyframes sugPulse{0%,100%{box-shadow:0 10px 28px rgba(200,21,77,.45),0 0 0 0 rgba(255,138,0,.55)}50%{box-shadow:0 10px 28px rgba(200,21,77,.45),0 0 0 12px rgba(255,138,0,0)}}
+@media (prefers-reduced-motion:reduce){.sug-fab{animation:none}}
+@media (max-width:700px){.sug-fab{right:12px;bottom:12px;padding:12px 16px;font-size:.85rem}}
+body:has(.drawer.on) .sug-fab,body:has(.modal.on) .sug-fab{display:none}
+#mSug input,#mSug textarea{display:block;width:100%;margin-top:4px}
