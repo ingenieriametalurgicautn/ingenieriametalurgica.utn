@@ -120,13 +120,14 @@
     $('#who').innerHTML = `<b>${esc(USER.nombre || USER.email)}</b>${esc(USER.email)} · ${esc(USER.rol)}`;
     $$('.adm').forEach(el => el.hidden = !can('admin'));
     document.body.classList.toggle('ro', !can('editor'));
+    $('#bSug').hidden = false;
     apply(d);
   }
   function logout(msg) {
     if (SES) imApi({ action: 'logout', token: SES.token }).catch(() => {});
     SES = null; USER = null; store.set(null); closeDrawer(true);
     FILAS = []; LOG = [];
-    $('#app').hidden = true; $('#login').hidden = false;
+    $('#app').hidden = true; $('#login').hidden = false; $('#bSug').hidden = true; $('#mSug').classList.remove('on');
     $('#lErr').style.color = ''; $('#lErr').textContent = msg || '';
     try { google.accounts.id.disableAutoSelect(); } catch (e) {}
   }
@@ -559,6 +560,26 @@
       $('#aBody').innerHTML = d.auditoria.map(a => `<tr><td>${fmt(a['Fecha'])} ${String(a['Fecha']).slice(11, 16)}</td><td>${esc(a['Usuario'])}</td><td>${esc(a['Acción'])}</td><td>${esc(a['ID'])}</td><td>${esc(a['Detalle'])}</td></tr>`).join('') || '<tr><td colspan="5">Sin movimientos.</td></tr>';
     } catch (e) { toast(e.message); }
   }
+
+  /* ---------- Sugerencias de mejora (llegan por email a la desarrolladora) ---------- */
+  $('#bSug').onclick = () => {
+    $('#sNom').value = (USER && USER.nombre) || $('#sNom').value || '';
+    $('#sErr').textContent = ''; $('#mSug').classList.add('on');
+    setTimeout(() => ($('#sNom').value ? $('#sTxt') : $('#sNom')).focus(), 50);
+  };
+  $('#sNo').onclick = () => $('#mSug').classList.remove('on');
+  $('#sOk').onclick = async () => {
+    const nombre = $('#sNom').value.trim(), texto = $('#sTxt').value.trim();
+    if (!nombre) { $('#sErr').textContent = 'Escribí tu nombre.'; return; }
+    if (texto.length < 5) { $('#sErr').textContent = 'Contanos un poco más qué necesitás.'; return; }
+    const b = $('#sOk'); b.disabled = true; b.textContent = 'Enviando…'; $('#sErr').textContent = '';
+    try {
+      await call({ action: 'sugerencia', nombre, texto });
+      $('#sTxt').value = ''; $('#mSug').classList.remove('on');
+      toast('¡Gracias! Tu sugerencia ya fue enviada. 💡', 3500);
+    } catch (e) { $('#sErr').textContent = e.message === 'Error' || /acción|action/i.test(e.message) ? 'No se pudo enviar. Probá de nuevo en un rato.' : e.message; }
+    finally { b.disabled = false; b.textContent = 'Enviar sugerencia'; }
+  };
 
   /* ---------- Inicio ---------- */
   setInterval(() => { if (SES && USER && !document.hidden && !Object.keys(draft).length && !$('.modal.on')) refresh(false); }, 90000);
