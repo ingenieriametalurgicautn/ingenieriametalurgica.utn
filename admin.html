@@ -18,8 +18,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/admin.css?v=5.1">
-<link rel="stylesheet" href="assets/css/app.css?v=5.1">
+<link rel="stylesheet" href="assets/css/admin.css?v=5.2">
+<link rel="stylesheet" href="assets/css/app.css?v=5.2">
 </head>
 <body>
 
@@ -258,11 +258,22 @@
   </div>
 </div></div>
 
+<!-- Sugerencias -->
+<button class="sug-fab" id="bSug" hidden title="Contanos qué mejorarías del panel">💡 <span>Sugerir mejoras o cambios</span></button>
+<div class="modal" id="mSug"><div class="mbox">
+  <h3>💡 Sugerir mejoras o cambios</h3>
+  <p>¿Algo que no funciona, que falta o que harías distinto en el panel? Escribilo acá y le llega por email a quien desarrolla la web.</p>
+  <label>Tu nombre<input id="sNom" maxlength="100" placeholder="Nombre y apellido"></label>
+  <label>¿Qué necesitás?<textarea id="sTxt" rows="6" maxlength="3000" placeholder="Ej.: me serviría poder filtrar por colegio, o que la ficha muestre el teléfono arriba…"></textarea></label>
+  <p class="merr" id="sErr"></p>
+  <div class="macts"><button class="btn btn-ghost-dark" id="sNo">Cancelar</button><button class="btn btn-pink" id="sOk">Enviar sugerencia</button></div>
+</div></div>
+
 <div class="toast" id="toast"></div>
 
 <script src="https://accounts.google.com/gsi/client" async defer></script>
-<script src="assets/js/config.js?v=5.1"></script>
-<script src="assets/js/admin.js?v=5.1"></script>
-<script src="assets/js/app.js?v=5.1"></script>
+<script src="assets/js/config.js?v=5.2"></script>
+<script src="assets/js/admin.js?v=5.2"></script>
+<script src="assets/js/app.js?v=5.2"></script>
 </body>
 </html>
